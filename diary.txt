@@ -1,0 +1,3 @@
+Date	    Start	Stop	Activity	        Comments
+18/04/2021  20:00   22:00   spec understanding  read through spec and played around with reference implementation, also wrote some sudo code
+18/04/2021  22:00   22:20   coding              Coded up part of subset 0 quit command
