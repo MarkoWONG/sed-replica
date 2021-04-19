@@ -73,8 +73,11 @@ elsif ($speed_command =~ m/(.*)\/(.*)\/(.*)\/(.*)?/g){
     $sub_regex = $2;
     $substitute = $3;
     $modifer = $4;
+    if ($command eq 's') {
+        $address = -3; # -3 for not having a specified line to apply the sub command
+    }
     #for regex address
-    if ($command =~ m/\/(.*)\/(.)/g){
+    elsif ($command =~ m/^\/(.*)\/(.)/g){
         $regex = $1;
         $command = $2;
         $address = -2;
@@ -85,8 +88,7 @@ elsif ($speed_command =~ m/(.*)\/(.*)\/(.*)\/(.*)?/g){
         # print "regex detected was $regex\n";
     }
     #for line_number address
-    elsif ($command =~ m/([0-9]*)(.)/g){
-
+    elsif ($command =~ m/^([0-9]*)(.)/g){
         $address = $1;
         $command = $2;
         if ($command ne 's'){
@@ -94,19 +96,16 @@ elsif ($speed_command =~ m/(.*)\/(.*)\/(.*)\/(.*)?/g){
             exit 1;
         }
     }
-    elsif ($command eq 's') {
-        $address = -3; # -3 for not having a specified line to apply the sub command
-    }
     else{
         print "speed: command line: invalid command\n";
         exit 1;
     }
     # print "command detected was $command\n";
-    # print "sub_regex detected was $sub_regex\n";
+    #print "sub_regex detected was $sub_regex\n";
     # print "sub detected was $substitute\n";
-    # print "modifer detected was $modifer\n";
+    #print "modifer detected was $modifer\n";
 
-    if (defined $modifer && $modifer ne 'g'){
+    if (defined $modifer && $modifer ne 'g' && $modifer ne ''){
         #print "modifer detected was $modifer\n";
         print "speed: command line: invalid command\n";
         exit 1;
@@ -122,7 +121,8 @@ elsif ($speed_command =~ m/\/(.*)\/(.*)/g){
     $regex = $1;
     $command = $2;
     $address = -2; # -2 for using regex instead of address
-    if ($command ne 'q' || $command ne 'd' || $command ne 'p' || $command ne 's') {
+    #print "command = $command\n";
+    if ($command ne 'q' && $command ne 'd' && $command ne 'p' && $command ne 's') {
         print "speed: command line: invalid command\n";
         exit 1;
     }
@@ -198,7 +198,7 @@ while (<STDIN>) {
         ($address == -2 && $line =~ m/$regex/g) # for using a line_number as address
         ){
             $modified = 1;
-            if (defined $modifer){
+            if (defined $modifer && $modifer eq 'g'){
                 $line =~ s/$sub_regex/$substitute/g;
             }
             else{
