@@ -7,14 +7,8 @@ test_dir=$(mktemp -d /tmp/dir.XXXXXXXXXX)
 # ensure temporary directory + all its contents removed on exit
 trap 'rm -rf "$test_dir; exit"' INT TERM EXIT
 
-# Copy all girt-* files into test_dir
-for file in *
-do 
-    if [ -f "$file" ] && echo "$file" | egrep -q '^girt-.*'
-    then 
-        cp "./"$file"" ""$test_dir"/"$file"";
-    fi
-done
+# copy speed.pl file to test directory
+cp "./speed.pl" ""$test_dir"/speed.pl";
 
 # change working directory to the new temporary directory
 cd "$test_dir" || exit 1
