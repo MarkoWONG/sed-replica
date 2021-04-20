@@ -1,6 +1,7 @@
 Date	    Start	Stop	Activity	        Comments
 18/04/2021  20:00   22:00   spec understanding  read through spec and played around with reference implementation, also wrote some sudo code
 18/04/2021  22:00   22:20   coding              Coded up part of subset 0 quit command
-19/04/2021  11:00   19:00   coding              finished teh core of subset 0
+19/04/2021  11:00   19:00   coding              finished the core of subset 0
 19/04/2021  19:00   23:40   debugging           wrote 1 test script and still debugging subset 0
 20/04/2021  09:30   10:40   debugging           Fully finished subset 0 with it's 2 test scripts
+20/04/2021  11:00   23:30   coding              Started subset 1

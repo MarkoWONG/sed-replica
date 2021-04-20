@@ -54,16 +54,10 @@ elsif ($option_i != 0 || $option_n != 0){
 else{
     $speed_command = $arguments[0];
 }
-
-# # An array of valid commands
-# @valid_commands = ("a", "b", "c", "d", "i", "p", "q", "s", "t", "none");
-# # $valid is used to check for valid commands in the else
-# $valid = 0;
-
 # Determine the delimitor
 
 
-# Breakdown of speeed command into command type and address type
+# Breakdown of speed command into command type and address type
 if ($speed_command =~ m/^ *$/g){
     $command = "none";
 }
@@ -80,7 +74,7 @@ elsif ($speed_command =~ m/(.*)\/(.*)\/(.*)\/(.*)?/g){
     elsif ($command =~ m/^\/(.*)\/(.)/g){
         $regex = $1;
         $command = $2;
-        $address = -2;
+        $address = -2; # -2 for using regex instead of address
         if ($command ne 's'){
             print "speed: command line: invalid command\n";
             exit 1;
@@ -120,6 +114,7 @@ elsif ($speed_command =~ m/(.*)\/(.*)\/(.*)\/(.*)?/g){
     }
     #print "address dectected was $address\n";
 }
+
 # for regex matches
 elsif ($speed_command =~ m/\/(.*)\/(.*)/g){
     $regex = $1;
@@ -131,23 +126,31 @@ elsif ($speed_command =~ m/\/(.*)\/(.*)/g){
         exit 1;
     }
 }
+
 # address is a line number
 else { 
     $regex = "\$a"; # this mathes an 'a' after end of line so it never matches
-    $speed_command =~ m/^([0-9]*)(.)$/g;
+    $speed_command =~ m/^([0-9\$]*)(.)$/g;
     $first_cap = $1;
     $second_cap = $2;
     #print "first_cap = $first_cap second_cap = $second_cap\n";
     if (defined $first_cap && $first_cap eq ''){
-        # -1 = no address found
-        $address = -1;
+        $address = -3; # -3 for not having a specified line to apply the sub command
         $command = $second_cap;
         #print "command detected was $command\n";
     }
-    elsif (defined $first_cap && $first_cap =~ m/[0-9]/g){
+    elsif (defined $first_cap && $first_cap =~ m/[0-9\$]/g){
         $address = $first_cap;
         $command = $second_cap;
-        if ($address <= 0){
+        # check if address number is a postive number
+        if ($address =~ m/^[0-9]*$/g){
+            if ($address <= 0){
+                print "speed: command line: invalid command\n";
+                exit 1;
+            }
+        }
+        # only except to address not being a number is '$'
+        elsif ($address ne '$'){
             print "speed: command line: invalid command\n";
             exit 1;
         }
@@ -155,16 +158,8 @@ else {
         # print "command detected was $command\n";
     }
     else {
-        # for (@valid_commands){
-        #     if ($speed_command eq $_){
-        #         $valid = 1;   
-        #         last; #break
-        #     }
-        # }
-        # if ($valid == 0){
         print "speed: command line: invalid command\n";
         exit 1;
-        #}
     }
 }
 
@@ -181,17 +176,17 @@ while (<STDIN>) {
     $modified = 0;
 
     if ($command eq 'q'){
-        if ($line =~ m/$regex/g || $address == -1 || $address == $line_no){
+        if ($line =~ m/$regex/g || $address == -3 || $address == $line_no){
             $quit = 1;
         }
     }
     elsif ($command eq 'p'){
-        if ($line =~ m/$regex/g || $address == -1 || $address == $line_no){
+        if ($line =~ m/$regex/g || $address == -3 || $address == $line_no){
             print "$line";
         }
     }
     elsif ($command eq 'd'){
-        if ($line =~ m/$regex/g || $address == -1 || $address == $line_no){
+        if ($line =~ m/$regex/g || $address == -3 || $address == $line_no){
             $delete = 1;
         }
     }
@@ -200,7 +195,6 @@ while (<STDIN>) {
             print "speed: command line: invalid command\n";
             exit 1;
         }
-        # no address provided so apply to every line
         if ($address == -3 || # no address provided so apply to every line
         ($line_no == $address) || # for using a regex match as address
         ($address == -2 && $line =~ m/$regex/g) # for using a line_number as address
