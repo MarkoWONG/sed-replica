@@ -28,6 +28,8 @@ if ($#ARGV == -1) {
     print "usage: speed [-i] [-n] [-f <script-file> | <sed-command>] [<files>...]\n";
     exit 1;
 }
+
+# there is a split command in perl. use for ; when mulitple command
 # Save the agruments as the static scope replaces the @ARGV
 @arguments = @ARGV;
 
@@ -60,6 +62,14 @@ else{
 # Breakdown of speed command into command type and address type
 if ($speed_command =~ m/^ *$/g){
     $command = "none";
+    $address = -3;
+}
+# for regex to regex range
+elsif ($speed_command =~ m/^\/(.*)\/,\/(.*)\/(.)$/g){
+    $regex = $1;
+    $rRegex2 = $2;
+    $command = $3;
+    $address = -2;
 }
 # for substitute command
 elsif ($speed_command =~ m/(.*)\/(.*)\/(.*)\/(.*)?/g){
@@ -116,11 +126,32 @@ elsif ($speed_command =~ m/(.*)\/(.*)\/(.*)\/(.*)?/g){
 }
 
 # for regex matches
-elsif ($speed_command =~ m/\/(.*)\/(.*)/g){
-    $regex = $1;
-    $command = $2;
-    $address = -2; # -2 for using regex instead of address
-    #print "command = $command\n";
+elsif ($speed_command =~ m/(.*)\/(.*)\/(.*)/g){
+    $address = $1;
+    $regex = $2;
+    $command = $3;
+    #$address = -2; # -2 for using regex instead of address
+    #print "command = $command regex = $regex address = $address\n";
+    #if ($address ne ''){
+    # For line_number, regex (e.g '3,/2/d')
+    if ($address =~ m/^([0-9]*),$/g){
+        $address = $1;
+        $rRegex2 = $regex;
+        $regex = "\$a"; # this mathes an 'a' after end of line so it never matches
+        #print "= $address\n";
+    }
+    # For regex, line numeber (e.g '/2/,4d')
+    elsif ($command =~ m/,([0-9]*)(.)/g){
+        $address = -2;
+        $rAddress2 = $1;
+        $command = $2;
+    }
+    #print "command = $command regex = $regex address = $address\n";
+
+    #}
+    else{
+        $address = -2; # -2 for using regex instead of address
+    }
     if ($command ne 'q' && $command ne 'd' && $command ne 'p' && $command ne 's') {
         print "speed: command line: invalid command\n";
         exit 1;
@@ -130,16 +161,20 @@ elsif ($speed_command =~ m/\/(.*)\/(.*)/g){
 # address is a line number
 else { 
     $regex = "\$a"; # this mathes an 'a' after end of line so it never matches
-    $speed_command =~ m/^([0-9\$]*)(.)$/g;
+    $speed_command =~ m/^([0-9\$,]*)(.)$/g;
     $first_cap = $1;
     $second_cap = $2;
     #print "first_cap = $first_cap second_cap = $second_cap\n";
+
+    # no address was supplied
     if (defined $first_cap && $first_cap eq ''){
         $address = -3; # -3 for not having a specified line to apply the sub command
         $command = $second_cap;
         #print "command detected was $command\n";
     }
-    elsif (defined $first_cap && $first_cap =~ m/[0-9\$]/g){
+
+    # address was supplied
+    elsif (defined $first_cap && $first_cap =~ m/[0-9\$,]/g){
         $address = $first_cap;
         $command = $second_cap;
         # check if address number is a postive number
@@ -149,7 +184,12 @@ else {
                 exit 1;
             }
         }
-        # only except to address not being a number is '$'
+        elsif ($address =~ m/([0-9\$]*),([0-9\$]*)/g){
+            $address = $1;
+            $rAddress2 = $2;
+            #print "1 = $address and 2 = $rAddress2\n";
+        }
+        # address can either be a number or '$' only
         elsif ($address ne '$'){
             print "speed: command line: invalid command\n";
             exit 1;
@@ -170,6 +210,9 @@ else {
 # Tracks with line number the program is on
 $line_no = 0;
 
+# for ',' range operation
+$withinrange = 0;
+
 # Main Driver Code: For each line passed into speed
 while (<STDIN>) {
     $line = $_;
@@ -177,9 +220,10 @@ while (<STDIN>) {
     # 0 = false, non-zero = true
     $quit = 0; 
     $delete = 0;
+    $print = 0;
     $modified = 0;
     # change $address to current line number if address = '$' during the last loop
-    if ($address == -1 && eof) {
+    if ($address =~ m/^-?[0-9]$/ && $address == -1 && eof) {
         $address = $line_no;
     }
     if ($command eq 'q'){
@@ -189,12 +233,47 @@ while (<STDIN>) {
     }
     elsif ($command eq 'p'){
         if ($line =~ m/$regex/g || $address == -3 || $address == $line_no){
+            $print = 1;           
+            if (defined $rAddress2){
+                $address = $rAddress2;
+                $withinrange++;
+            }
+            elsif (defined $rRegex2){
+                $regex = $rRegex2;
+                $withinrange++;
+            }
+        }
+        elsif ($withinrange == 1){
+            $print = 1; 
+        }
+        # if rRegex2 was found more than twice then ignore the matches after 
+        # because this is a range
+        if (defined $rRegex2 && $withinrange > 2){
+            $print = 0; 
+        }
+        if ($print != 0){
             print "$line";
         }
     }
     elsif ($command eq 'd'){
         if ($line =~ m/$regex/g || $address == -3 || $address == $line_no){
             $delete = 1;
+            if (defined $rAddress2){
+                $address = $rAddress2;
+                $withinrange++;
+            }
+            elsif (defined $rRegex2){
+                $regex = $rRegex2;
+                $withinrange++;
+            }
+        }
+        elsif ($withinrange == 1){
+            $delete = 1;
+        }
+        # if rRegex2 was found more than twice then ignore the matches after 
+        # because this is a range
+        if (defined $rRegex2 && $withinrange > 2){
+            $delete = 0;
         }
     }
     elsif ($command eq 's'){

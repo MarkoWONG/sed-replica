@@ -21,7 +21,9 @@ cd "$test_dir" || exit 1
 mkdir "solution"
 cd "solution"
 (
-
+    # $ as a line number in , commands
+    seq 10 21 | 2041 speed '3,$d'
+    seq 10 21 | 2041 speed '$,3d'
 ) >>"sol.txt" 2>>"sol.txt"
 cd ..
 NC='\033[0m' # No Color

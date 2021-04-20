@@ -4,4 +4,5 @@ Date	    Start	Stop	Activity	        Comments
 19/04/2021  11:00   19:00   coding              finished the core of subset 0
 19/04/2021  19:00   23:40   debugging           wrote 1 test script and still debugging subset 0
 20/04/2021  09:30   10:40   debugging           Fully finished subset 0 with it's 2 test scripts
-20/04/2021  11:00   23:30   coding              Started subset 1
+20/04/2021  11:00   11:30   coding              implemented '$' for address
+20/04/2021  18:00   23:30   coding              implmented half of subset 1 ranges
