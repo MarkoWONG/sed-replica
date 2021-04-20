@@ -154,6 +154,10 @@ else {
             print "speed: command line: invalid command\n";
             exit 1;
         }
+        # assign -1 to address of '$'
+        if ($address eq '$'){
+            $address = -1;
+        }
         # print "address detected was $address\n";
         # print "command detected was $command\n";
     }
@@ -174,7 +178,10 @@ while (<STDIN>) {
     $quit = 0; 
     $delete = 0;
     $modified = 0;
-
+    # change $address to current line number if address = '$' during the last loop
+    if ($address == -1 && eof) {
+        $address = $line_no;
+    }
     if ($command eq 'q'){
         if ($line =~ m/$regex/g || $address == -3 || $address == $line_no){
             $quit = 1;
