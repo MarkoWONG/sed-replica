@@ -95,6 +95,10 @@ elsif ($speed_command =~ m/(.*)\/(.*)\/(.*)\/(.*)?/g){
             print "speed: command line: invalid command\n";
             exit 1;
         }
+        if ($address <= 0){
+            print "speed: command line: invalid command\n";
+            exit 1;
+        }
     }
     else{
         print "speed: command line: invalid command\n";
@@ -143,6 +147,10 @@ else {
     elsif (defined $first_cap && $first_cap =~ m/[0-9]/g){
         $address = $first_cap;
         $command = $second_cap;
+        if ($address <= 0){
+            print "speed: command line: invalid command\n";
+            exit 1;
+        }
         # print "address detected was $address\n";
         # print "command detected was $command\n";
     }
@@ -217,11 +225,11 @@ while (<STDIN>) {
     if ($option_n == 0 && $delete == 0){
         print "$line";
     }
-    elsif ($option_n != 0){
-        if ($modified != 0 && $delete == 0){
-            print "$line";
-        }
-    }
+    # elsif ($option_n != 0){
+    #     if ($modified != 0 && $delete == 0){
+    #         print "$line";
+    #     }
+    # }
     if ($quit != 0){
         exit 0;
     }

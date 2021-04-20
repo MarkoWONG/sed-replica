@@ -56,11 +56,10 @@ cd "$test_dir" || exit 1
     echo $?
     seq 1 11 | ./speed.pl -n '10d'
     echo $?
-    echo "hi\n"
     seq 1 15 | ./speed.pl -n '10s/.2/3/g'
     echo $?
 
-    # address out of range and edge cases
+    # address out of range and edge cases (line number has to be > 0)
     # for print
     seq 1 5 | ./speed.pl '1p'
     echo $?
@@ -101,7 +100,7 @@ cd "$test_dir" || exit 1
     # wrong command type for substitute/regex format
     seq 1 5 | ./speed.pl '/1/f'
     echo $?
-    seq 1 5 | ./speed.pl '/1/z'
+    seq 1 5 | ./speed.pl '/1/c'
     echo $?
     seq 1 5 | ./speed.pl '/1/u'
     echo $?
@@ -227,7 +226,7 @@ cd "solution"
     # wrong command type for substitute/regex format
     seq 1 5 | 2041 speed '/1/f'
     echo $?
-    seq 1 5 | 2041 speed '/1/z'
+    seq 1 5 | 2041 speed '/1/c'
     echo $?
     seq 1 5 | 2041 speed '/1/u'
     echo $?
