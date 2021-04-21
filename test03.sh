@@ -30,10 +30,10 @@ cd "solution"
     seq 494 500 | ./speed.pl '/4/,5p'
 
     # muliple matches for the 2nd address
-
+    seq 10 25 | ./speed.pl '3,/2/s/1/9/g'
     # ranges match the first apperence of 1st address then match until the first 
     # apperence of 2nd address. 
-    
+
     # ranges can be applied more than once
     seq 10 31 | 2041 speed '/1$/,/^2/d'
 ) >>"sol.txt" 2>>"sol.txt"

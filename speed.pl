@@ -30,6 +30,7 @@ if ($#ARGV == -1) {
 }
 
 # there is a split command in perl. use for ; when mulitple command
+
 # Save the agruments as the static scope replaces the @ARGV
 @arguments = @ARGV;
 
@@ -56,8 +57,17 @@ elsif ($option_i != 0 || $option_n != 0){
 else{
     $speed_command = $arguments[0];
 }
-# Determine the delimitor
-
+# Determine the delimitor for substitute function
+# grab the all the charaters after a 's'. 
+$delimitor = 'none';
+for ($speed_command =~ m/s(.)/g){
+    $p_delimitor = $_;
+    # if character fits into the substitute format then delimitor is found
+    if ($speed_command =~ m/s$p_delimitor(.*)$p_delimitor(.*)$p_delimitor(.*)/g){
+        $delimitor = $p_delimitor;
+        last;
+    }
+}
 
 # Breakdown of speed command into command type and address type
 if ($speed_command =~ m/^ *$/g){
@@ -72,12 +82,14 @@ elsif ($speed_command =~ m/^\/(.*)\/,\/(.*)\/(.)$/g){
     $address = -2;
 }
 # for substitute command
-elsif ($speed_command =~ m/(.*)\/(.*)\/(.*)\/(.*)?/g){
+elsif ($speed_command =~ m/(.*)\Q$delimitor\E(.*)\Q$delimitor\E(.*)\Q$delimitor\E(.*)?/g){
     $command = $1;
     $sub_regex = $2;
     $substitute = $3;
     $modifer = $4;
+    #print "command = $command delimitor = $delimitor\n";
     if ($command eq 's') {
+        $regex = "\$a";
         $address = -3; # -3 for not having a specified line to apply the sub command
     }
     # for regex to regex range
@@ -299,6 +311,7 @@ while (<STDIN>) {
             print "speed: command line: invalid command\n";
             exit 1;
         }
+        #print "line = $line with address = $address regex = $regex\n";
         if ($address == -3 || # no address provided so apply to every line
         ($line_no == $address) || # for using a regex match as address
         ($address == -2 && $line =~ m/$regex/g) # for using a line_number as address
