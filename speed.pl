@@ -80,6 +80,30 @@ elsif ($speed_command =~ m/(.*)\/(.*)\/(.*)\/(.*)?/g){
     if ($command eq 's') {
         $address = -3; # -3 for not having a specified line to apply the sub command
     }
+    # for regex to regex range
+    elsif ($command =~ m/\/(.*)\/,\/(.*)\/(.)/g){
+        $command = $3;
+        $regex = $1;
+        $rRegex2 = $2;
+        $address = -2;
+        #print "command = $command regex = $regex rRegex2 = $rRegex2 substitute = $substitute\n";
+    }
+
+    # for regex to line number range
+    elsif ($command =~ m/\/(.*)\/,([0-9]*)(.)/g){
+        $regex = $1;
+        $rAddress2 = $2;
+        $command = $3;
+        $address = -2;
+        #print "regex = $regex address = $address command = $command \n";
+    }
+    # for line number to regex range
+    elsif ($command =~ m/([0-9]*),\/(.*)\/(.)/g){
+        $address = $1;
+        $rRegex2 = $2;
+        $command = $3;
+        #print "regex = $regex address = $address command = $command \n";
+    }
     #for regex address
     elsif ($command =~ m/^\/(.*)\/(.)/g){
         $regex = $1;
@@ -239,17 +263,14 @@ while (<STDIN>) {
                 $withinrange++;
             }
             elsif (defined $rRegex2){
+                $rRegex1 = $regex;
                 $regex = $rRegex2;
+                $rRegex2 = $rRegex1;
                 $withinrange++;
             }
         }
-        elsif ($withinrange == 1){
+        elsif ($withinrange % 2 != 0){
             $print = 1; 
-        }
-        # if rRegex2 was found more than twice then ignore the matches after 
-        # because this is a range
-        if (defined $rRegex2 && $withinrange > 2){
-            $print = 0; 
         }
         if ($print != 0){
             print "$line";
@@ -263,17 +284,14 @@ while (<STDIN>) {
                 $withinrange++;
             }
             elsif (defined $rRegex2){
+                $rRegex1 = $regex;
                 $regex = $rRegex2;
+                $rRegex2 = $rRegex1;
                 $withinrange++;
             }
         }
-        elsif ($withinrange == 1){
+        elsif ($withinrange % 2 != 0){
             $delete = 1;
-        }
-        # if rRegex2 was found more than twice then ignore the matches after 
-        # because this is a range
-        if (defined $rRegex2 && $withinrange > 2){
-            $delete = 0;
         }
     }
     elsif ($command eq 's'){
@@ -285,6 +303,27 @@ while (<STDIN>) {
         ($line_no == $address) || # for using a regex match as address
         ($address == -2 && $line =~ m/$regex/g) # for using a line_number as address
         ){
+            $modified = 1;
+            if (defined $modifer && $modifer eq 'g'){
+                $line =~ s/$sub_regex/$substitute/g;
+            }
+            else{
+                $line =~ s/$sub_regex/$substitute/;
+            }
+            if (defined $rAddress2){
+                $address = $rAddress2;
+                #$regex = '\$a';
+                $withinrange++;
+            }
+            elsif (defined $rRegex2){
+                $rRegex1 = $regex;
+                $regex = $rRegex2;
+                $rRegex2 = $rRegex1;
+                #$address = -2;
+                $withinrange++;
+            }
+        }
+        elsif ($withinrange % 2 != 0){
             $modified = 1;
             if (defined $modifer && $modifer eq 'g'){
                 $line =~ s/$sub_regex/$substitute/g;

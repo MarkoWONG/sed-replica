@@ -24,6 +24,18 @@ cd "solution"
     # $ as a line number in , commands
     seq 10 21 | 2041 speed '3,$d'
     seq 10 21 | 2041 speed '$,3d'
+
+    # mulitple matches for 1st address
+    seq 493 500 | 2041 speed '/4/,5p'
+    seq 494 500 | ./speed.pl '/4/,5p'
+
+    # muliple matches for the 2nd address
+
+    # ranges match the first apperence of 1st address then match until the first 
+    # apperence of 2nd address. 
+    
+    # ranges can be applied more than once
+    seq 10 31 | 2041 speed '/1$/,/^2/d'
 ) >>"sol.txt" 2>>"sol.txt"
 cd ..
 NC='\033[0m' # No Color
