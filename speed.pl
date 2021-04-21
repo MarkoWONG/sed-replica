@@ -60,7 +60,7 @@ else{
 }
 
 # split the command(s) into single commands
-@commands = split("[,\n]", $speed_command);
+@commands = split("[;\n]", $speed_command);
 
 # Tracks with line number the program is on
 my $line_no = 0;
@@ -70,6 +70,10 @@ while (<STDIN>) {
     my$line = $_;
     $line_no++;
 
+    #0 = false, non-zero = true
+    my $quit = 0;
+    my $delete = 0;
+    my $print = 0;
     # For each command
     foreach my $s_command (@commands) {
         #print "$s_command\n";
@@ -85,10 +89,10 @@ while (<STDIN>) {
         my $substitute = $info[5];
         my $modifer = $info[6];
         
-        #0 = false, non-zero = true
-        my $quit = 0;
-        my $delete = 0;
-        my $print = 0;
+        # #0 = false, non-zero = true
+        # my $quit = 0;
+        # my $delete = 0;
+        # my $print = 0;
 
         # change $address to current line number if address = '$' during the last loop
         if ($a_line_no ne "none" && $a_line_no == -1 && eof) {
@@ -188,12 +192,12 @@ while (<STDIN>) {
                 exit 1;
             }
         }
-        if ($option_n == 0 && $delete == 0){
-            print "$line";
-        }
-        if ($quit != 0){
-            exit 0;
-        }
+    }
+    if ($option_n == 0 && $delete == 0){
+        print "$line";
+    }
+    if ($quit != 0){
+        exit 0;
     }
     # for '' command
     if (scalar @commands == 0){
