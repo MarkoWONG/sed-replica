@@ -86,9 +86,9 @@ while (<STDIN>) {
         my $modifer = $info[6];
         
         #0 = false, non-zero = true
-        $quit = 0;
-        $delete = 0;
-        $print = 0;
+        my $quit = 0;
+        my $delete = 0;
+        my $print = 0;
 
         # change $address to current line number if address = '$' during the last loop
         if ($a_line_no ne "none" && $a_line_no == -1 && eof) {
