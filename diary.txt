@@ -6,3 +6,7 @@ Date	    Start	Stop	Activity	        Comments
 20/04/2021  09:30   10:40   debugging           Fully finished subset 0 with it's 2 test scripts
 20/04/2021  11:00   11:30   coding              implemented '$' for address
 20/04/2021  18:00   23:30   coding              implmented half of subset 1 ranges
+21/04/2021  09:30   11:00   coding              implmented delimitor and set up stucture of mulit command
+21/04/2021  13:00   16:00   coding              Tried to figure out ranges but realised need to redo it anyways because of the mulit command stucture
+21/04/2021  20:00   22:30   reformating         Complete redid the style and format of the assignment as the style become unreadable
+21/04/2021  22:30   24:00   coding              coded some of the ranges and mulit command   

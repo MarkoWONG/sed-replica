@@ -63,11 +63,11 @@ else{
 @commands = split("[,\n]", $speed_command);
 
 # Tracks with line number the program is on
-$line_no = 0;
+my $line_no = 0;
 
 # For each line passed into speed
 while (<STDIN>) {
-    $line = $_;
+    my$line = $_;
     $line_no++;
 
     # For each command
