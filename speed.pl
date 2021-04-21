@@ -24,7 +24,6 @@
 #     break if quit
 use Getopt::Long;
 
-
 # Main Code
 # USAGE ERROR: No arguments passed
 if ($#ARGV == -1) {
@@ -48,8 +47,48 @@ $option_f = 0;
     }
 }
 
-# Set the speed_command
-if ($option_i != 0 && $option_n != 0){
+# Set the speed_command or use command line or input file
+if ($option_i != 0 && $option_n != 0 && $option_f != 0){
+    if (defined $arguments[3]) {
+        open $f, '<', $arguments[3] or 
+        die "speed: couldn't open file commands.speed: No such file or directory\n";
+    }
+    else {
+        print "usage: speed [-i] [-n] [-f <script-file> | <sed-command>] [<files>...]\n";
+        exit 1;
+    }
+}
+elsif ($option_i != 0 && $option_f != 0){
+    if (defined $arguments[2]) {
+        open $f, '<', $arguments[2] or 
+        die "speed: couldn't open file commands.speed: No such file or directory\n";
+    }
+    else {
+        print "usage: speed [-i] [-n] [-f <script-file> | <sed-command>] [<files>...]\n";
+        exit 1;
+    }
+}
+elsif ($option_n != 0 && $option_f != 0){
+    if (defined $arguments[2]) {
+        open $f, '<', $arguments[2] or 
+        die "speed: couldn't open file commands.speed: No such file or directory\n";
+    }
+    else {
+        print "usage: speed [-i] [-n] [-f <script-file> | <sed-command>] [<files>...]\n";
+        exit 1;
+    }
+}
+elsif ($option_f != 0){
+    if (defined $arguments[1]) {
+        open $f, '<', $arguments[1] or 
+        die "speed: couldn't open file commands.speed: No such file or directory\n";
+    }
+    else {
+        print "usage: speed [-i] [-n] [-f <script-file> | <sed-command>] [<files>...]\n";
+        exit 1;
+    }
+}
+elsif ($option_i != 0 && $option_n != 0){
     $speed_command = $arguments[2];
 }
 elsif ($option_i != 0 || $option_n != 0){
@@ -59,15 +98,24 @@ else{
     $speed_command = $arguments[0];
 }
 
-# split the command(s) into single commands
-@commands = split("[;\n]", $speed_command);
+if ($option_f != 0){
+    # read the entire contents of file and input into the string speed_command
+    my $speed_command = do { local $/; <$f> };
+    # split the command(s) into single commands
+    @commands = split("[;\n]", $speed_command);
+}
+else {
+    # split the command(s) into single commands
+    @commands = split("[;\n]", $speed_command);
+}
+$inputs = "STDIN";
 
 # Tracks with line number the program is on
 my $line_no = 0;
 
 # For each line passed into speed
-while (<STDIN>) {
-    my$line = $_;
+while (<$inputs>) {
+    my $line = $_;
     $line_no++;
 
     #0 = false, non-zero = true
