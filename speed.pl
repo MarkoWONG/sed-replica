@@ -112,7 +112,7 @@ $inputs = "STDIN";
 
 # Tracks with line number the program is on
 my $line_no = 0;
-
+#my $within_range = 0;
 # For each line passed into speed
 while (<$inputs>) {
     my $line = $_;
@@ -127,35 +127,28 @@ while (<$inputs>) {
         #print "$s_command\n";
         
         my @info = command_breakdown($s_command);
-        # info format (command_type, address type, line_no, regex, sub_regex, substitute, modifer)
-        #print "command_type = $info[0], address type = $info[1], line_no = $info[2], regex = $info[3], sub_regex = $info[4], substitute = $info[5], modifer = $info[6]\n";
+        #print "command_type = $info[0], address type = $info[1]\n";
         my $command_type = $info[0];
         my $address_type = $info[1];
-        my $a_line_no = $info[2];
-        my $a_regex = $info[3];
-        my $sub_regex = $info[4];
-        my $substitute = $info[5];
-        my $modifer = $info[6];
         
-        # #0 = false, non-zero = true
-        # my $quit = 0;
-        # my $delete = 0;
-        # my $print = 0;
-
-        # change $address to current line number if address = '$' during the last loop
-        if ($a_line_no ne "none" && $a_line_no == -1 && eof) {
-            $a_line_no = $line_no;
+        if ($command_type eq "none"){
         }
-        if ($command_type eq 'q'){
+        elsif ($command_type eq 'q'){
             if ($address_type eq "none"){
                 $quit = 1;
             }
             elsif ($address_type eq "line_no") {
+                my $a_line_no = $info[2];
+                # change $address to current line number if address = '$' during the last loop
+                if ($a_line_no == -1 && eof) {
+                    $a_line_no = $line_no;
+                }
                 if ($a_line_no == $line_no){
                     $quit = 1;
                 }
             }
             elsif ($address_type eq "regex") {
+                my $a_regex = $info[2];
                 if ($line =~ m/$a_regex/g){
                     $quit = 1;
                 }
@@ -170,11 +163,17 @@ while (<$inputs>) {
                 $print = 1;
             }
             elsif ($address_type eq "line_no"){
+                my $a_line_no = $info[2];
+                # change $address to current line number if address = '$' during the last loop
+                if ($a_line_no == -1 && eof) {
+                    $a_line_no = $line_no;
+                }
                 if ($a_line_no == $line_no){
                     $print = 1;
                 }
             }
             elsif ($address_type eq "regex"){
+                my $a_regex = $info[2];
                 if ($line =~ m/$a_regex/g) {
                     $print = 1;
                 }
@@ -192,11 +191,19 @@ while (<$inputs>) {
                 $delete = 1;
             }
             elsif ($address_type eq "line_no"){
+                my $a_line_no = $info[2];
+                # change $address to current line number if address = '$' during the last loop
+                if ($a_line_no == -1 && eof) {
+                    $a_line_no = $line_no;
+                }
                 if ($a_line_no == $line_no){
                     $delete = 1;
+                    # if ($)
+                    # $within_range = 1;
                 }
             }
             elsif ($address_type eq "regex") {
+                my $a_regex = $info[2];
                 if ($line =~ m/$a_regex/g){
                     $delete = 1;
                 }
@@ -207,6 +214,9 @@ while (<$inputs>) {
             }
         }
         elsif ($command_type eq 's'){
+            my $sub_regex = $info[3];
+            my $substitute = $info[4];
+            my $modifer = $info[5];
             if ($address_type eq "none"){
                 if ($modifer eq 'g'){
                     $line =~ s/$sub_regex/$substitute/g;
@@ -216,6 +226,11 @@ while (<$inputs>) {
                 }
             }
             elsif ($address_type eq "line_no") {
+                my $a_line_no = $info[2];
+                # change $address to current line number if address = '$' during the last loop
+                if ($a_line_no == -1 && eof) {
+                    $a_line_no = $line_no;
+                }
                 if ($a_line_no == $line_no){
                     if ($modifer eq 'g'){
                         $line =~ s/$sub_regex/$substitute/g;
@@ -226,6 +241,7 @@ while (<$inputs>) {
                 }
             }
             elsif ($address_type eq "regex") {
+                my $a_regex = $info[2];
                 if ($line =~ m/$a_regex/g){
                     if (defined $modifer && $modifer eq 'g'){
                         $line =~ s/$sub_regex/$substitute/g;
@@ -239,6 +255,10 @@ while (<$inputs>) {
                 print "speed: command line: invalid command\n";
                 exit 1;
             }
+        }
+        else{
+            print "speed: command line: invalid command\n";
+            exit 1;
         }
     }
     if ($option_n == 0 && $delete == 0){
@@ -263,7 +283,7 @@ sub command_breakdown {
     # Breakdown of speed command into command type and address type
     # For whitespace command
     if ($command =~ m/^\s*$/g || $command eq ''){
-        @result = ("none", "none", "none", "none", "none", "none", "none");
+        @result = ("none", "none");
         return @result;
     }
 
@@ -303,14 +323,14 @@ sub command_breakdown {
         # For no address
         if ($address eq '') {
             # result format (command_type, address type, line_no, regex, sub_regex, substitute, modifer)
-            @result = ($command_type, "none", "none", "none", $sub_regex, $substitute, $modifer);
+            @result = ($command_type, "none", "none", $sub_regex, $substitute, $modifer);
             return @result;
         }
 
         # For regex address
         elsif ($address =~ m/^\s*\/(.+)\/\s*$/g){
             my $regex = $1;
-            @result = ($command_type, "regex", "none", $regex, $sub_regex, $substitute, $modifer);
+            @result = ($command_type, "regex", $regex, $sub_regex, $substitute, $modifer);
             return @result;
           
         }
@@ -321,7 +341,7 @@ sub command_breakdown {
                 print "speed: command line: invalid command\n";
                 exit 1;
             }
-            @result = ($command_type, "line_no", $line_no, "none", $sub_regex, $substitute, $modifer);
+            @result = ($command_type, "line_no", $line_no, $sub_regex, $substitute, $modifer);
             return @result;
         }
         # For invalid command/format
@@ -344,7 +364,7 @@ sub command_breakdown {
                 exit 1;
             }
         }
-        @result = ($command_type, "none", "none", "none", "none", "none", "none");
+        @result = ($command_type, "none");
         return @result;
     }
     # For Regex address
@@ -362,7 +382,7 @@ sub command_breakdown {
             }
         }
         # return results if the command_type is valid
-        @result = ($command_type, "regex", "none", $regex, "none", "none", "none");
+        @result = ($command_type, "regex", $regex);
         return @result;
     }
 
@@ -400,7 +420,7 @@ sub command_breakdown {
 
         # return results if the command_type is valid
         if ($command_type eq 'q' || $command_type eq 'd' || $command_type eq 'p') {
-            @result = ($command_type, "line_no", $line_no, "none ", "none", "none", "none");
+            @result = ($command_type, "line_no", $line_no);
             return @result;
         }
         else {
