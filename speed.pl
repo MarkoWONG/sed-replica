@@ -247,10 +247,6 @@ while (<$inputs>) {
     if ($quit != 0){
         exit 0;
     }
-    # for '' command
-    if (scalar @commands == 0){
-        print "$line";
-    }
 }
 
 # breaks down a command into command, address's, regex's,
@@ -266,7 +262,7 @@ sub command_breakdown {
 
     # Breakdown of speed command into command type and address type
     # For whitespace command
-    if ($command =~ m/^ *$/g){
+    if ($command =~ m/^\s*$/g || $command eq ''){
         @result = ("none", "none", "none", "none", "none", "none", "none");
         return @result;
     }
