@@ -11,3 +11,5 @@ Date	    Start	Stop	Activity	        Comments
 21/04/2021  20:00   22:30   reformating         Complete redid the style and format of the assignment as the style become unreadable
 21/04/2021  22:30   24:00   coding              decided to leave ranges to last. coded up -f option
 22/04/2021  10:00   11:30   coding              implemented comments and whitespace
+22/04/2021  12:00   18:00   coding              implemented ranges
+22/04/2021  20:00   23:00   coding              implemented mulit command

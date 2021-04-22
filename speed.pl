@@ -1,27 +1,25 @@
 #!/usr/bin/perl -w
 
-# sudo code: (from tut)
+# Purpose: Implement a subset of the important Unix/Linux tool Sed.
+# Written By Marko Wong (z5309371)
+# Date: 18/04/2021
 
-# mulitple commands and order of execution
-
-# p,q,d,s///
-
+# sudo code: 
 # for each line:
 #     for each command:
 #         address, type = command
-#         if address matches or is empty:
 #             if type == q:
 #                 quit = true
 #                 break
 #             else if type == p:
-#             else if type starts with s:
-#                 sed the using the type
+#             else if type == s:
 #             else if type == d:
 #                 deleted = true
 #                 break
 #     continue if deleted
 #     print line
 #     break if quit
+
 use Getopt::Long;
 
 # Main Code
@@ -51,7 +49,8 @@ $option_f = 0;
 if ($option_i != 0 && $option_n != 0 && $option_f != 0){
     if (defined $arguments[3]) {
         open $f, '<', $arguments[3] or 
-        die "speed: couldn't open file commands.speed: No such file or directory\n";
+        print "speed: couldn't open file $arguments[3]: No such file or directory\n";
+        exit 1;
     }
     else {
         print "usage: speed [-i] [-n] [-f <script-file> | <sed-command>] [<files>...]\n";
@@ -61,7 +60,8 @@ if ($option_i != 0 && $option_n != 0 && $option_f != 0){
 elsif ($option_i != 0 && $option_f != 0){
     if (defined $arguments[2]) {
         open $f, '<', $arguments[2] or 
-        die "speed: couldn't open file commands.speed: No such file or directory\n";
+        print "speed: couldn't open file $arguments[2]: No such file or directory\n";
+        exit 1;
     }
     else {
         print "usage: speed [-i] [-n] [-f <script-file> | <sed-command>] [<files>...]\n";
@@ -71,7 +71,8 @@ elsif ($option_i != 0 && $option_f != 0){
 elsif ($option_n != 0 && $option_f != 0){
     if (defined $arguments[2]) {
         open $f, '<', $arguments[2] or 
-        die "speed: couldn't open file commands.speed: No such file or directory\n";
+        print "speed: couldn't open file $arguments[2]: No such file or directory\n";
+        exit 1;
     }
     else {
         print "usage: speed [-i] [-n] [-f <script-file> | <sed-command>] [<files>...]\n";
@@ -81,7 +82,8 @@ elsif ($option_n != 0 && $option_f != 0){
 elsif ($option_f != 0){
     if (defined $arguments[1]) {
         open $f, '<', $arguments[1] or 
-        die "speed: couldn't open file commands.speed: No such file or directory\n";
+        print "speed: couldn't open file $arguments[1]: No such file or directory\n";
+        exit 1;
     }
     else {
         print "usage: speed [-i] [-n] [-f <script-file> | <sed-command>] [<files>...]\n";
@@ -137,7 +139,7 @@ while (<$inputs>) {
         if ($command_type eq "none"){
         }
         # For quit command
-        elsif ($command_type eq 'q'){
+        elsif ($delete == 0 && $command_type eq 'q'){
             if ($address_type eq "none"){
                 $quit = 1;
             }
@@ -151,7 +153,7 @@ while (<$inputs>) {
                     $quit = 1;
                 }
             }
-            elsif ($address_type eq "regex") {
+            elsif ($address_type eq "regex") {  
                 my $a_regex = $info[2];
                 if ($line =~ m/$a_regex/g){
                     $quit = 1;
@@ -163,7 +165,7 @@ while (<$inputs>) {
             }
         }
         # For print command
-        elsif ($command_type eq 'p'){
+        elsif ($quit == 0 && $delete == 0 && $command_type eq 'p'){
             if ($address_type eq "none"){
                 $print = 1;
             }
@@ -288,7 +290,7 @@ while (<$inputs>) {
             }
         }
         # For delete command
-        elsif ($command_type eq 'd'){
+        elsif ($quit == 0 && $command_type eq 'd'){
             if ($address_type eq "none"){
                 $delete = 1;
             }
@@ -410,7 +412,7 @@ while (<$inputs>) {
             }
         }
         # For substitute command
-        elsif ($command_type eq 's'){
+        elsif ($quit == 0 && $delete == 0 && $command_type eq 's'){
             my $sub_regex = $info[3];
             my $substitute = $info[4];
             my $modifer = $info[5];
@@ -622,10 +624,7 @@ while (<$inputs>) {
                 exit 1;
             }
         }
-        else{
-            print "speed: command line: invalid command\n";
-            exit 1;
-        }
+
     }
     if ($option_n == 0 && $delete == 0){
         print "$line";
