@@ -53,6 +53,11 @@ cd "$test_dir" || exit 1
     echo $?
     seq 1 5 | ./speed.pl 's//a/'
     echo $?
+
+    # regex address can't be empty
+    seq 1 100 | ./speed.pl '//d'
+    echo $?
+
 ) >>"output.txt" 2>>"output.txt"
 
 mkdir "solution"
@@ -96,7 +101,9 @@ cd "solution"
     echo $?
     seq 1 5 | 2041 speed 's//a/'
     echo $?
-
+    # regex address can't be empty
+    seq 1 100 | 2041 speed '//d'
+    echo $?
 ) >>"sol.txt" 2>>"sol.txt"
 cd ..
 NC='\033[0m' # No Color

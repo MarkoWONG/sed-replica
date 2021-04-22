@@ -268,59 +268,63 @@ sub command_breakdown {
     }
 
     # For substitute command type
-    elsif ($command =~ m/(.*)\Q$delimitor\E(.*)\Q$delimitor\E(.*)\Q$delimitor\E(.*)?/g){
-        my $command_type = $1;
+    elsif ($command =~ m/(.*)s\Q$delimitor\E(.*)\Q$delimitor\E(.*)\Q$delimitor\E(.*)?/g){
+        my $address = $1;
+        my $command_type = 's';
         my $sub_regex = $2;
         my $substitute = $3;
         my $modifer = $4;
-        #print "command = $command delimitor = $delimitor\n";
-        if (defined $modifer && $modifer ne 'g' && $modifer ne ''){
-            print "speed: command line: invalid command\n";
-            exit 1;
+        # remove whitespaces from non regex variables
+        $command_type = whitespace_remover($command_type);
+        $modifer = whitespace_remover($modifer);
+        # check for valid comment
+        if (defined $modifer && $modifer ne '') {
+            if ($modifer !~ m/^g#.*$/g && $modifer !~ m/^#.*$/g && $modifer !~ m/^g$/g) {
+                print "speed: command line: invalid command\n";
+                exit 1;
+            }
+            elsif ($modifer =~ m/^g$/g){
+                $modifer = 'g';
+            }
+            elsif ($modifer =~ m/^g#.*$/g){
+                $modifer = 'g';
+            }
+            elsif ($modifer =~ m/^#.*$/g){
+                $modifer = '';
+            }
         }
-        elsif ($sub_regex eq ''){
+
+        #check for valid sub_regex
+        if ($sub_regex eq ''){
             print "speed: command line: invalid command\n";
             exit 1;
         }
 
         # For no address
-        if ($command_type eq 's') {
+        if ($address eq '') {
             # result format (command_type, address type, line_no, regex, sub_regex, substitute, modifer)
             @result = ($command_type, "none", "none", "none", $sub_regex, $substitute, $modifer);
             return @result;
         }
 
         # For regex address
-        elsif ($command_type =~ m/^\/(.*)\/(.)$/g){
+        elsif ($address =~ m/^\s*\/(.+)\/\s*$/g){
             my $regex = $1;
-            $command_type = $2;
-            if ($command_type eq 's'){
-                @result = ($command_type, "regex", "none", $regex, $sub_regex, $substitute, $modifer);
-                return @result;
-            }
-            else {
-                print "speed: command line: invalid command\n";
-                exit 1;
-            }
-            # print "regex detected was $regex\n";
+            @result = ($command_type, "regex", "none", $regex, $sub_regex, $substitute, $modifer);
+            return @result;
+          
         }
         # For line_number address
-        elsif ($command_type =~ m/^([0-9]*)(.)$/g){
+        elsif ($address =~ m/^\s*([0-9]*)\s*$/g){
             my $line_no = $1;
-            $command_type = $2;
             if ($line_no <= 0){
                 print "speed: command line: invalid command\n";
                 exit 1;
             }
-            if ($command_type eq 's'){
-                @result = ($command_type, "line_no", $line_no, "none", $sub_regex, $substitute, $modifer);
-                return @result;
-            }
-            else {
-                print "speed: command line: invalid command\n";
-                exit 1;
-            }
+            @result = ($command_type, "line_no", $line_no, "none", $sub_regex, $substitute, $modifer);
+            return @result;
         }
+        # For invalid command/format
         else {
             print "speed: command line: invalid command\n";
             exit 1;
@@ -328,30 +332,54 @@ sub command_breakdown {
     }
 
     # no address was supplied
-    elsif ($command =~ m/(^[qdp]$)/g){
+    elsif ($command =~ m/^\s*([qdp])(.*)$/g){
         my $command_type = $1;
+        my $comment = $2;
+        # remove whitespaces from comment
+        $comment = whitespace_remover($comment);
+        # check for valid comment
+        if (defined $comment && $comment ne '') {
+            if ($comment !~ m/^#.*$/g) {
+                print "speed: command line: invalid command\n";
+                exit 1;
+            }
+        }
         @result = ($command_type, "none", "none", "none", "none", "none", "none");
         return @result;
     }
     # For Regex address
-    elsif ($command =~ m/^\/(.*)\/(.)$/g){
+    elsif ($command =~ m/^\s*\/(.+)\/\s*([qdp])(.*)$/g){
         my $regex = $1;
         my $command_type = $2;
+        my $comment = $3;
+        # remove whitespaces from comment
+        $comment = whitespace_remover($comment);
+        # check for valid comment
+        if (defined $comment && $comment ne '') {
+            if ($comment !~ m/^#.*$/g) {
+                print "speed: command line: invalid command\n";
+                exit 1;
+            }
+        }
         # return results if the command_type is valid
-        if ($command_type eq 'q' || $command_type eq 'd' || $command_type eq 'p') {
-            @result = ($command_type, "regex", "none", $regex, "none", "none", "none");
-            return @result;
-        }
-        else {
-            print "speed: command line: invalid command\n";
-            exit 1;
-        }
+        @result = ($command_type, "regex", "none", $regex, "none", "none", "none");
+        return @result;
     }
 
     # For line Number address
-    elsif ($command =~ m/^([0-9\$]+)(.)$/g) {
+    elsif ($command =~ m/^\s*([0-9\$]+)\s*([qdp])(.*)$/g) {
         my $line_no = $1;
         my $command_type = $2;
+        my $comment = $3;
+        # remove whitespaces from comment
+        $comment = whitespace_remover($comment);
+        # check for valid comment
+        if (defined $comment && $comment ne '') {
+            if ($comment !~ m/^#.*$/g) {
+                print "speed: command line: invalid command\n";
+                exit 1;
+            }
+        }
 
         # check if line_no is a postive number
         if ($line_no =~ m/^[0-9]*$/g){
@@ -404,4 +432,15 @@ sub get_delimitor {
         }
     }
     return $delimitor;
+}
+
+# Remove all whitespaces from string
+sub whitespace_remover {
+    ($str1) = @_;
+    $str1 =~ tr/ //d;
+    $str1 =~ tr/\n//d;
+    $str1 =~ tr/\t//d;
+    $str1 =~ tr/\f//d;
+    $str1 =~ tr/\r//d;
+    return $str1;
 }
