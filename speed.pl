@@ -447,6 +447,9 @@ while (<$inputs>) {
             elsif ($address_type eq "no_range_no") {
                 my $start = $info[2];
                 my $end = $info[3];
+                my $sub_regex = $info[4];
+                my $substitute = $info[5];
+                my $modifer = $info[6];
                 # change $address to current line number if address = '$' during the last loop
                 if ($start == -1 && eof) {
                     $start = $line_no;
@@ -487,6 +490,9 @@ while (<$inputs>) {
             elsif ($address_type eq "no_range_re"){
                 my $start = $info[2];
                 my $end = $info[3];
+                my $sub_regex = $info[4];
+                my $substitute = $info[5];
+                my $modifer = $info[6];
                 # change $address to current line number if address = '$' during the last loop
                 if ($start == -1 && eof) {
                     $start = $line_no;
@@ -526,6 +532,9 @@ while (<$inputs>) {
             elsif ($address_type eq "re_range_no"){
                 my $start = $info[2];
                 my $end = $info[3];
+                my $sub_regex = $info[4];
+                my $substitute = $info[5];
+                my $modifer = $info[6];
                 # change $address to current line number if address = '$' during the last loop
                 if ($end == -1 && eof) {
                     $end = $line_no;
@@ -565,6 +574,10 @@ while (<$inputs>) {
             elsif ($address_type eq "re_range_re"){
                 my $start = $info[2];
                 my $end = $info[3];
+                my $sub_regex = $info[4];
+                my $substitute = $info[5];
+                my $modifer = $info[6];
+                #print "start = $start end=$end\n";
                 # when within range activate command
                 if ($within_range == 1){
                     if ($modifer eq 'g'){
@@ -649,17 +662,56 @@ sub command_breakdown {
         if ($end eq '$'){
             $end = -1;
         }
-        # remove whitespaces from comment
-        $comment = whitespace_remover($comment);
-        # check for valid comment
-        if (defined $comment && $comment ne '') {
-            if ($comment !~ m/^#.*$/g) {
-                print "speed: command line: invalid command\n";
-                exit 1;
+        
+        # for subsitute command
+        #print "$command_type\n";
+
+        if ($command_type eq 's'){
+            if ($comment =~ m/\Q$delimitor\E(.*)\Q$delimitor\E(.*)\Q$delimitor\E(.*)?/g){
+                my $sub_regex = $1;
+                my $substitute = $2;
+                my $modifer = $3;
+                # remove whitespaces from non regex variables
+                $command_type = whitespace_remover($command_type);
+                $modifer = whitespace_remover($modifer);
+                # check for valid comment
+                if (defined $modifer && $modifer ne '') {
+                    if ($modifer !~ m/^g#.*$/g && $modifer !~ m/^#.*$/g && $modifer !~ m/^g$/g) {
+                        print "speed: command line: invalid command\n";
+                        exit 1;
+                    }
+                    elsif ($modifer =~ m/^g$/g){
+                        $modifer = 'g';
+                    }
+                    elsif ($modifer =~ m/^g#.*$/g){
+                        $modifer = 'g';
+                    }
+                    elsif ($modifer =~ m/^#.*$/g){
+                        $modifer = '';
+                    }
+                }
+                #check for valid sub_regex
+                if ($sub_regex eq ''){
+                    print "speed: command line: invalid command\n";
+                    exit 1;
+                }
+                @result = ($command_type, "no_range_no", $start, $end, $sub_regex, $substitute, $modifer);
+                return @result;
             }
         }
-        @result = ($command_type, "no_range_no", $start, $end);
-        return @result;
+        else {
+            # remove whitespaces from comment
+            $comment = whitespace_remover($comment);
+            # check for valid comment
+            if (defined $comment && $comment ne '') {
+                if ($comment !~ m/^#.*$/g) {
+                    print "speed: command line: invalid command\n";
+                    exit 1;
+                }
+            }
+            @result = ($command_type, "no_range_no", $start, $end, );
+            return @result;
+        }
     }
     # For line_no to regex range
     elsif ($command =~ m/^\s*([0-9\$]+)\s*,\s*\/(.+)\/\s*([pds])\s*(.*)$/g) {
@@ -672,17 +724,52 @@ sub command_breakdown {
         if ($start eq '$'){
             $start = -1;
         }
-        # remove whitespaces from comment
-        $comment = whitespace_remover($comment);
-        # check for valid comment
-        if (defined $comment && $comment ne '') {
-            if ($comment !~ m/^#.*$/g) {
-                print "speed: command line: invalid command\n";
-                exit 1;
+        if ($command_type eq 's'){
+            if ($comment =~ m/\Q$delimitor\E(.*)\Q$delimitor\E(.*)\Q$delimitor\E(.*)?/g){
+                my $sub_regex = $1;
+                my $substitute = $2;
+                my $modifer = $3;
+                # remove whitespaces from non regex variables
+                $command_type = whitespace_remover($command_type);
+                $modifer = whitespace_remover($modifer);
+                # check for valid comment
+                if (defined $modifer && $modifer ne '') {
+                    if ($modifer !~ m/^g#.*$/g && $modifer !~ m/^#.*$/g && $modifer !~ m/^g$/g) {
+                        print "speed: command line: invalid command\n";
+                        exit 1;
+                    }
+                    elsif ($modifer =~ m/^g$/g){
+                        $modifer = 'g';
+                    }
+                    elsif ($modifer =~ m/^g#.*$/g){
+                        $modifer = 'g';
+                    }
+                    elsif ($modifer =~ m/^#.*$/g){
+                        $modifer = '';
+                    }
+                }
+                #check for valid sub_regex
+                if ($sub_regex eq ''){
+                    print "speed: command line: invalid command\n";
+                    exit 1;
+                }
+                @result = ($command_type, "no_range_re", $start, $end, $sub_regex, $substitute, $modifer);
+                return @result;
             }
         }
-        @result = ($command_type, "no_range_re", $start, $end);
-        return @result;
+        else {
+            # remove whitespaces from comment
+            $comment = whitespace_remover($comment);
+            # check for valid comment
+            if (defined $comment && $comment ne '') {
+                if ($comment !~ m/^#.*$/g) {
+                    print "speed: command line: invalid command\n";
+                    exit 1;
+                }
+            }
+            @result = ($command_type, "no_range_re", $start, $end, );
+            return @result;
+        }
     }
     # For regex to line_no range
     elsif ($command =~ m/^\s*\/(.+)\/\s*,\s*([0-9\$]+)\s*([pds])\s*(.*)$/g) {
@@ -695,17 +782,52 @@ sub command_breakdown {
         if ($end eq '$'){
             $end = -1;
         }
-        # remove whitespaces from comment
-        $comment = whitespace_remover($comment);
-        # check for valid comment
-        if (defined $comment && $comment ne '') {
-            if ($comment !~ m/^#.*$/g) {
-                print "speed: command line: invalid command\n";
-                exit 1;
+        if ($command_type eq 's'){
+            if ($comment =~ m/\Q$delimitor\E(.*)\Q$delimitor\E(.*)\Q$delimitor\E(.*)?/g){
+                my $sub_regex = $1;
+                my $substitute = $2;
+                my $modifer = $3;
+                # remove whitespaces from non regex variables
+                $command_type = whitespace_remover($command_type);
+                $modifer = whitespace_remover($modifer);
+                # check for valid comment
+                if (defined $modifer && $modifer ne '') {
+                    if ($modifer !~ m/^g#.*$/g && $modifer !~ m/^#.*$/g && $modifer !~ m/^g$/g) {
+                        print "speed: command line: invalid command\n";
+                        exit 1;
+                    }
+                    elsif ($modifer =~ m/^g$/g){
+                        $modifer = 'g';
+                    }
+                    elsif ($modifer =~ m/^g#.*$/g){
+                        $modifer = 'g';
+                    }
+                    elsif ($modifer =~ m/^#.*$/g){
+                        $modifer = '';
+                    }
+                }
+                #check for valid sub_regex
+                if ($sub_regex eq ''){
+                    print "speed: command line: invalid command\n";
+                    exit 1;
+                }
+                @result = ($command_type, "re_range_no", $start, $end, $sub_regex, $substitute, $modifer);
+                return @result;
             }
         }
-        @result = ($command_type, "re_range_no", $start, $end);
-        return @result;
+        else {
+            # remove whitespaces from comment
+            $comment = whitespace_remover($comment);
+            # check for valid comment
+            if (defined $comment && $comment ne '') {
+                if ($comment !~ m/^#.*$/g) {
+                    print "speed: command line: invalid command\n";
+                    exit 1;
+                }
+            }
+            @result = ($command_type, "re_range_no", $start, $end, );
+            return @result;
+        }
     }
     # For regex to regex range
     elsif ($command =~ m/^\s*\/(.+)\/\s*,\s*\/(.+)\/\s*([pds])\s*(.*)$/g) {
@@ -714,17 +836,52 @@ sub command_breakdown {
         $end = $2;
         $command_type = $3;
         $comment = $4;
-        # remove whitespaces from comment
-        $comment = whitespace_remover($comment);
-        # check for valid comment
-        if (defined $comment && $comment ne '') {
-            if ($comment !~ m/^#.*$/g) {
-                print "speed: command line: invalid command\n";
-                exit 1;
+        if ($command_type eq 's'){
+            if ($comment =~ m/\Q$delimitor\E(.*)\Q$delimitor\E(.*)\Q$delimitor\E(.*)?/g){
+                my $sub_regex = $1;
+                my $substitute = $2;
+                my $modifer = $3;
+                # remove whitespaces from non regex variables
+                $command_type = whitespace_remover($command_type);
+                $modifer = whitespace_remover($modifer);
+                # check for valid comment
+                if (defined $modifer && $modifer ne '') {
+                    if ($modifer !~ m/^g#.*$/g && $modifer !~ m/^#.*$/g && $modifer !~ m/^g$/g) {
+                        print "speed: command line: invalid command\n";
+                        exit 1;
+                    }
+                    elsif ($modifer =~ m/^g$/g){
+                        $modifer = 'g';
+                    }
+                    elsif ($modifer =~ m/^g#.*$/g){
+                        $modifer = 'g';
+                    }
+                    elsif ($modifer =~ m/^#.*$/g){
+                        $modifer = '';
+                    }
+                }
+                #check for valid sub_regex
+                if ($sub_regex eq ''){
+                    print "speed: command line: invalid command\n";
+                    exit 1;
+                }
+                @result = ($command_type, "re_range_re", $start, $end, $sub_regex, $substitute, $modifer);
+                return @result;
             }
         }
-        @result = ($command_type, "re_range_re", $start, $end);
-        return @result;
+        else {
+            # remove whitespaces from comment
+            $comment = whitespace_remover($comment);
+            # check for valid comment
+            if (defined $comment && $comment ne '') {
+                if ($comment !~ m/^#.*$/g) {
+                    print "speed: command line: invalid command\n";
+                    exit 1;
+                }
+            }
+            @result = ($command_type, "re_range_re", $start, $end, );
+            return @result;
+        }
     }
     # For substitute command type
     elsif ($command =~ m/(.*)s\Q$delimitor\E(.*)\Q$delimitor\E(.*)\Q$delimitor\E(.*)?/g){

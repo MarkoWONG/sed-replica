@@ -21,6 +21,8 @@ cd "$test_dir" || exit 1
 mkdir "solution"
 cd "solution"
 (
+    seq 10 40 | speed.pl '/2/,4p'
+
     # using $$ 
 
 
