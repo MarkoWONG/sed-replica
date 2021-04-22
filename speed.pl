@@ -671,7 +671,7 @@ sub command_breakdown {
 
     # Breakdown of speed command into command type and address type
     # For whitespace command
-    if ($command =~ m/^\s*$/g || $command eq ''){
+    if ($command =~ m/^\s*$/g || $command eq '' || $command =~ m/^\s*#.*$/g){
         @result = ("none", "none");
         return @result;
     }
