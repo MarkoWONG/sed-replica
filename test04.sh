@@ -44,10 +44,13 @@ cd "solution"
     seq 1 20 | 2041 speed '1,$s/./-/;3q'
     seq 1 20 | 2041 speed '2,3d;3q'
     seq 1 20 | 2041 speed  -n '10p;$p'
+
+    # just comment
+    seq 1 20 | 2041 speed ' # asofms  '
+
     #autotest fails
     seq 1 100 | 2041 speed -n '1,/.1/p;/5/,/9/s/.//;/.{2}/,/.9/p;85q' #63
-    echo '/2/    d # comment' > commandsFile; echo '# comment'         >> commandsFile; echo '4    q'            >> commandsFile; seq 1 2   > two.txt; seq 1 5   > five.txt; ./speed.pl -f commandsFile two.txt five.txt
-    seq 1 2 > two.txt; seq 1 5 > five.txt; speed.pl -f commandsFile five.txt two.txt
+
 ) >>"sol.txt" 2>>"sol.txt"
 cd ..
 NC='\033[0m' # No Color
