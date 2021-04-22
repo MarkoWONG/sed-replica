@@ -21,16 +21,29 @@ cd "$test_dir" || exit 1
 mkdir "solution"
 cd "solution"
 (
+    # using $$ 
+
+
     # $ as a line number in , commands
     seq 10 21 | 2041 speed '3,$d'
     seq 10 21 | 2041 speed '$,3d'
 
-    # mulitple matches for 1st address
+    # mulitple matches for 1st address but 2nd address is line_no so only apply for the match, range don't start
     seq 493 500 | 2041 speed '/4/,5p'
     seq 494 500 | ./speed.pl '/4/,5p'
+    seq 10 35 | ./speed.pl '/2/,4d'
+
+    # activating the range when already in range
+    seq 10 35 | ./speed.pl '/2/,$d'
+
+    # don't match 2nd regex when not in range
+    seq 10 35 | ./speed.pl '/1$/,/^2/d'
+
+    # mulitple matches for 1st address regex to regex
 
     # muliple matches for the 2nd address
     seq 10 25 | ./speed.pl '3,/2/s/1/9/g'
+    
     # ranges match the first apperence of 1st address then match until the first 
     # apperence of 2nd address. 
 

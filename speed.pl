@@ -112,7 +112,7 @@ $inputs = "STDIN";
 
 # Tracks with line number the program is on
 my $line_no = 0;
-#my $within_range = 0;
+my $within_range = 0;
 # For each line passed into speed
 while (<$inputs>) {
     my $line = $_;
@@ -131,8 +131,10 @@ while (<$inputs>) {
         my $command_type = $info[0];
         my $address_type = $info[1];
         
+        # For no command
         if ($command_type eq "none"){
         }
+        # For quit command
         elsif ($command_type eq 'q'){
             if ($address_type eq "none"){
                 $quit = 1;
@@ -158,6 +160,7 @@ while (<$inputs>) {
                 exit 1;
             }
         }
+        # For print command
         elsif ($command_type eq 'p'){
             if ($address_type eq "none"){
                 $print = 1;
@@ -178,6 +181,101 @@ while (<$inputs>) {
                     $print = 1;
                 }
             }
+            elsif ($address_type eq "no_range_no") {
+                my $start = $info[2];
+                my $end = $info[3];
+                # change $address to current line number if address = '$' during the last loop
+                if ($start == -1 && eof) {
+                    $start = $line_no;
+                }
+                if ($end == -1 && eof) {
+                    $end = $line_no;
+                }
+                # when within range activate command
+                if ($within_range == 1){
+                    $print =1;
+                }
+                # activate range
+                if ($start == $line_no){
+                    $print =1;
+                    $within_range = 1;
+                }
+                # deactivate range
+                if ($end == $line_no){
+                    $print =1;
+                    $within_range = 0;
+                }
+            }
+            elsif ($address_type eq "no_range_re"){
+                my $start = $info[2];
+                my $end = $info[3];
+                # change $address to current line number if address = '$' during the last loop
+                if ($start == -1 && eof) {
+                    $start = $line_no;
+                }
+                # when within range activate command
+                if ($within_range == 1){
+                    $print =1;
+                }
+                # activate range
+                if ($start == $line_no){
+                    $print =1;
+                    $within_range = 1;
+                }
+                # deactivate range
+                elsif ($line =~ m/$end/g){
+                    if ($within_range == 1){
+                        $print =1;
+                    }
+                    $within_range = 0;
+                }
+            }
+            elsif ($address_type eq "re_range_no"){
+                my $start = $info[2];
+                my $end = $info[3];
+                # change $address to current line number if address = '$' during the last loop
+                if ($end == -1 && eof) {
+                    $end = $line_no;
+                }
+                # when within range activate command (only activate once if end is already reached)
+                if ($within_range == 1){
+                    $print =1;
+                }
+                # activate range
+                if ($line =~ m/$start/g){
+                    $print =1;
+                    if ($within_range != 1){ #(only activate once if end is already reached)
+                        $within_range++;
+                    }
+                }
+                # deactivate range
+                elsif ($end == $line_no){
+                    $print =1;
+                    $within_range = 0;
+                }
+            }
+            elsif ($address_type eq "re_range_re"){
+                my $start = $info[2];
+                my $end = $info[3];
+                # when within range activate command
+                if ($within_range == 1){
+                    $print =1;
+                }
+                # activate range
+                if ($line =~ m/$start/g){
+                    #print "started for $line\n";
+                    $print =1;
+                    $within_range = 1;
+                }
+                # deactivate range
+                if ($line =~ m/$end/g){
+                    #print "ended for $line\n";
+                    if ($within_range != 0){
+                        $print =1;
+                    }
+                    $within_range = 0;
+                }
+            }
             else {
                 print "speed: command line: invalid command\n";
                 exit 1;
@@ -186,6 +284,7 @@ while (<$inputs>) {
                 print "$line";
             }
         }
+        # For delete command
         elsif ($command_type eq 'd'){
             if ($address_type eq "none"){
                 $delete = 1;
@@ -198,8 +297,6 @@ while (<$inputs>) {
                 }
                 if ($a_line_no == $line_no){
                     $delete = 1;
-                    # if ($)
-                    # $within_range = 1;
                 }
             }
             elsif ($address_type eq "regex") {
@@ -208,11 +305,107 @@ while (<$inputs>) {
                     $delete = 1;
                 }
             }
+            elsif ($address_type eq "no_range_no") {
+                my $start = $info[2];
+                my $end = $info[3];
+                # change $address to current line number if address = '$' during the last loop
+                if ($start == -1 && eof) {
+                    $start = $line_no;
+                }
+                if ($end == -1 && eof) {
+                    $end = $line_no;
+                }
+                # when within range activate command
+                if ($within_range == 1){
+                    $delete = 1;
+                }
+                # activate range
+                if ($start == $line_no){
+                    $delete = 1;
+                    $within_range = 1;
+                }
+                # deactivate range
+                if ($end == $line_no){
+                    $delete = 1;
+                    $within_range = 0;
+                }
+            }
+            elsif ($address_type eq "no_range_re"){
+                my $start = $info[2];
+                my $end = $info[3];
+                # change $address to current line number if address = '$' during the last loop
+                if ($start == -1 && eof) {
+                    $start = $line_no;
+                }
+                # when within range activate command
+                if ($within_range == 1){
+                    $delete = 1;
+                }
+                # activate range
+                if ($start == $line_no){
+                    $delete = 1;
+                    $within_range = 1;
+                }
+                # deactivate range
+                elsif ($line =~ m/$end/g){
+                    if ($within_range == 1){
+                        $delete = 1;
+                    }
+                    $within_range = 0;
+                }
+            }
+            elsif ($address_type eq "re_range_no"){
+                my $start = $info[2];
+                my $end = $info[3];
+                # change $address to current line number if address = '$' during the last loop
+                if ($end == -1 && eof) {
+                    $end = $line_no;
+                }
+                # when within range activate command (only activate once if end is already reached)
+                if ($within_range == 1){
+                    $delete = 1;
+                }
+                # activate range
+                if ($line =~ m/$start/g){
+                    $delete = 1;
+                    if ($within_range != 1){ #(only activate once if end is already reached)
+                        $within_range++;
+                    }
+                }
+                # deactivate range
+                elsif ($end == $line_no){
+                    $delete = 1;
+                    $within_range = 0;
+                }
+            }
+            elsif ($address_type eq "re_range_re"){
+                my $start = $info[2];
+                my $end = $info[3];
+                # when within range activate command
+                if ($within_range == 1){
+                    $delete = 1;
+                }
+                # activate range
+                if ($line =~ m/$start/g){
+                    #print "started for $line\n";
+                    $delete = 1;
+                    $within_range = 1;
+                }
+                # deactivate range
+                if ($line =~ m/$end/g){
+                    #print "ended for $line\n";
+                    if ($within_range != 0){
+                        $delete = 1;
+                    }
+                    $within_range = 0;
+                }
+            }
             else {
                 print "speed: command line: invalid command\n";
                 exit 1;
             }
         }
+        # For substitute command
         elsif ($command_type eq 's'){
             my $sub_regex = $info[3];
             my $substitute = $info[4];
@@ -251,6 +444,161 @@ while (<$inputs>) {
                     }
                 }
             }
+            elsif ($address_type eq "no_range_no") {
+                my $start = $info[2];
+                my $end = $info[3];
+                # change $address to current line number if address = '$' during the last loop
+                if ($start == -1 && eof) {
+                    $start = $line_no;
+                }
+                if ($end == -1 && eof) {
+                    $end = $line_no;
+                }
+                # when within range activate command
+                if ($within_range == 1){
+                    if ($modifer eq 'g'){
+                        $line =~ s/$sub_regex/$substitute/g;
+                    }
+                    else{
+                        $line =~ s/$sub_regex/$substitute/;
+                    }
+                }
+                # activate range
+                if ($start == $line_no){
+                    if ($modifer eq 'g'){
+                        $line =~ s/$sub_regex/$substitute/g;
+                    }
+                    else{
+                        $line =~ s/$sub_regex/$substitute/;
+                    }
+                    $within_range = 1;
+                }
+                # deactivate range
+                if ($end == $line_no){
+                    if ($modifer eq 'g'){
+                        $line =~ s/$sub_regex/$substitute/g;
+                    }
+                    else{
+                        $line =~ s/$sub_regex/$substitute/;
+                    }
+                    $within_range = 0;
+                }
+            }
+            elsif ($address_type eq "no_range_re"){
+                my $start = $info[2];
+                my $end = $info[3];
+                # change $address to current line number if address = '$' during the last loop
+                if ($start == -1 && eof) {
+                    $start = $line_no;
+                }
+                # when within range activate command
+                if ($within_range == 1){
+                    if ($modifer eq 'g'){
+                        $line =~ s/$sub_regex/$substitute/g;
+                    }
+                    else{
+                        $line =~ s/$sub_regex/$substitute/;
+                    }
+                }
+                # activate range
+                if ($start == $line_no){
+                    if ($modifer eq 'g'){
+                        $line =~ s/$sub_regex/$substitute/g;
+                    }
+                    else{
+                        $line =~ s/$sub_regex/$substitute/;
+                    }
+                    $within_range = 1;
+                }
+                # deactivate range
+                elsif ($line =~ m/$end/g){
+                    if ($within_range == 1){
+                        if ($modifer eq 'g'){
+                            $line =~ s/$sub_regex/$substitute/g;
+                        }
+                        else{
+                            $line =~ s/$sub_regex/$substitute/;
+                        }
+                    }
+                    $within_range = 0;
+                }
+            }
+            elsif ($address_type eq "re_range_no"){
+                my $start = $info[2];
+                my $end = $info[3];
+                # change $address to current line number if address = '$' during the last loop
+                if ($end == -1 && eof) {
+                    $end = $line_no;
+                }
+                # when within range activate command (only activate once if end is already reached)
+                if ($within_range == 1){
+                    if ($modifer eq 'g'){
+                        $line =~ s/$sub_regex/$substitute/g;
+                    }
+                    else{
+                        $line =~ s/$sub_regex/$substitute/;
+                    }
+                }
+                # activate range
+                if ($line =~ m/$start/g){
+                    if ($modifer eq 'g'){
+                        $line =~ s/$sub_regex/$substitute/g;
+                    }
+                    else{
+                        $line =~ s/$sub_regex/$substitute/;
+                    }
+                    if ($within_range != 1){ #(only activate once if end is already reached)
+                        $within_range++;
+                    }
+                }
+                # deactivate range
+                elsif ($end == $line_no){
+                    if ($modifer eq 'g'){
+                        $line =~ s/$sub_regex/$substitute/g;
+                    }
+                    else{
+                        $line =~ s/$sub_regex/$substitute/;
+                    }
+                    $within_range = 0;
+                }
+            }
+            elsif ($address_type eq "re_range_re"){
+                my $start = $info[2];
+                my $end = $info[3];
+                # when within range activate command
+                if ($within_range == 1){
+                    if ($modifer eq 'g'){
+                        $line =~ s/$sub_regex/$substitute/g;
+                    }
+                    else{
+                        $line =~ s/$sub_regex/$substitute/;
+                    }
+                }
+                # activate range
+                if ($line =~ m/$start/g){
+                    #print "started for $line\n";
+                    if ($modifer eq 'g'){
+                        $line =~ s/$sub_regex/$substitute/g;
+                    }
+                    else{
+                        $line =~ s/$sub_regex/$substitute/;
+                    }
+                    $within_range = 1;
+                }
+                # deactivate range
+                if ($line =~ m/$end/g){
+                    #print "ended for $line\n";
+                    if ($within_range != 0){
+                        if ($modifer eq 'g'){
+                            $line =~ s/$sub_regex/$substitute/g;
+                        }
+                        else{
+                            $line =~ s/$sub_regex/$substitute/;
+                        }
+                    }
+                    $within_range = 0;
+                }
+            }
             else {
                 print "speed: command line: invalid command\n";
                 exit 1;
@@ -286,7 +634,98 @@ sub command_breakdown {
         @result = ("none", "none");
         return @result;
     }
-
+    # For line_no to line_no range
+    elsif ($command =~ m/^\s*([0-9\$]+)\s*,\s*([0-9\$]+)\s*([pds])\s*(.*)$/g) {
+        #print "line_no to line_no range\n";
+        $start = $1;
+        $end = $2;
+        $command_type = $3;
+        $comment = $4;
+        # assign -1 to address of '$'
+        if ($start eq '$'){
+            $start = -1;
+        }
+        # assign -1 to address of '$'
+        if ($end eq '$'){
+            $end = -1;
+        }
+        # remove whitespaces from comment
+        $comment = whitespace_remover($comment);
+        # check for valid comment
+        if (defined $comment && $comment ne '') {
+            if ($comment !~ m/^#.*$/g) {
+                print "speed: command line: invalid command\n";
+                exit 1;
+            }
+        }
+        @result = ($command_type, "no_range_no", $start, $end);
+        return @result;
+    }
+    # For line_no to regex range
+    elsif ($command =~ m/^\s*([0-9\$]+)\s*,\s*\/(.+)\/\s*([pds])\s*(.*)$/g) {
+        #print "line_no to regex range\n";
+        $start = $1;
+        $end = $2;
+        $command_type = $3;
+        $comment = $4;
+        # assign -1 to address of '$'
+        if ($start eq '$'){
+            $start = -1;
+        }
+        # remove whitespaces from comment
+        $comment = whitespace_remover($comment);
+        # check for valid comment
+        if (defined $comment && $comment ne '') {
+            if ($comment !~ m/^#.*$/g) {
+                print "speed: command line: invalid command\n";
+                exit 1;
+            }
+        }
+        @result = ($command_type, "no_range_re", $start, $end);
+        return @result;
+    }
+    # For regex to line_no range
+    elsif ($command =~ m/^\s*\/(.+)\/\s*,\s*([0-9\$]+)\s*([pds])\s*(.*)$/g) {
+        #print "regex to line_no range\n";
+        $start = $1;
+        $end = $2;
+        $command_type = $3;
+        $comment = $4;
+        # assign -1 to address of '$'
+        if ($end eq '$'){
+            $end = -1;
+        }
+        # remove whitespaces from comment
+        $comment = whitespace_remover($comment);
+        # check for valid comment
+        if (defined $comment && $comment ne '') {
+            if ($comment !~ m/^#.*$/g) {
+                print "speed: command line: invalid command\n";
+                exit 1;
+            }
+        }
+        @result = ($command_type, "re_range_no", $start, $end);
+        return @result;
+    }
+    # For regex to regex range
+    elsif ($command =~ m/^\s*\/(.+)\/\s*,\s*\/(.+)\/\s*([pds])\s*(.*)$/g) {
+        #print "regex to regex range\n";
+        $start = $1;
+        $end = $2;
+        $command_type = $3;
+        $comment = $4;
+        # remove whitespaces from comment
+        $comment = whitespace_remover($comment);
+        # check for valid comment
+        if (defined $comment && $comment ne '') {
+            if ($comment !~ m/^#.*$/g) {
+                print "speed: command line: invalid command\n";
+                exit 1;
+            }
+        }
+        @result = ($command_type, "re_range_re", $start, $end);
+        return @result;
+    }
     # For substitute command type
     elsif ($command =~ m/(.*)s\Q$delimitor\E(.*)\Q$delimitor\E(.*)\Q$delimitor\E(.*)?/g){
         my $address = $1;
@@ -335,11 +774,15 @@ sub command_breakdown {
           
         }
         # For line_number address
-        elsif ($address =~ m/^\s*([0-9]*)\s*$/g){
+        elsif ($address =~ m/^\s*([0-9\$]*)\s*$/g){
             my $line_no = $1;
-            if ($line_no <= 0){
+            if ($line_no ne '$' && $line_no <= 0){
                 print "speed: command line: invalid command\n";
                 exit 1;
+            }
+            # assign -1 to address of '$'
+            if ($line_no eq '$'){
+                $line_no = -1;
             }
             @result = ($command_type, "line_no", $line_no, $sub_regex, $substitute, $modifer);
             return @result;
@@ -418,15 +861,9 @@ sub command_breakdown {
             $line_no = -1;
         }
 
-        # return results if the command_type is valid
-        if ($command_type eq 'q' || $command_type eq 'd' || $command_type eq 'p') {
-            @result = ($command_type, "line_no", $line_no);
-            return @result;
-        }
-        else {
-            print "speed: command line: invalid command\n";
-            exit 1;
-        }
+        @result = ($command_type, "line_no", $line_no);
+        return @result;
+
     }
     else {
         print "speed: command line: invalid command\n";
