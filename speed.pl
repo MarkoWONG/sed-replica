@@ -47,6 +47,7 @@ $option_f = 0;
 
 # Set the speed_command or use command line or input file
 if ($option_i != 0 && $option_n != 0 && $option_f != 0){
+    $input_file_pos = 4;
     if (defined $arguments[3]) {
         open $f, '<', $arguments[3] or 
         print "speed: couldn't open file $arguments[3]: No such file or directory\n" and exit 1;
@@ -57,6 +58,7 @@ if ($option_i != 0 && $option_n != 0 && $option_f != 0){
     }
 }
 elsif ($option_i != 0 && $option_f != 0){
+    $input_file_pos = 3;
     if (defined $arguments[2]) {
         open $f, '<', $arguments[2] or 
         print "speed: couldn't open file $arguments[2]: No such file or directory\n" and exit 1;
@@ -67,6 +69,7 @@ elsif ($option_i != 0 && $option_f != 0){
     }
 }
 elsif ($option_n != 0 && $option_f != 0){
+    $input_file_pos = 3;
     if (defined $arguments[2]) {
         open $f, '<', $arguments[2] or 
         print "speed: couldn't open file $arguments[2]: No such file or directory\n" and exit 1;
@@ -77,6 +80,7 @@ elsif ($option_n != 0 && $option_f != 0){
     }
 }
 elsif ($option_f != 0){
+    $input_file_pos = 2;
     if (defined $arguments[1]) {
         open $f, '<', $arguments[1] or 
         print "speed: couldn't open file $arguments[1]: No such file or directory\n" and exit 1;
@@ -87,15 +91,19 @@ elsif ($option_f != 0){
     }
 }
 elsif ($option_i != 0 && $option_n != 0){
+    $input_file_pos = 3;
     $speed_command = $arguments[2];
 }
 elsif ($option_i != 0 || $option_n != 0){
+    $input_file_pos = 2;
     $speed_command = $arguments[1];
 }
 else{
+    $input_file_pos = 1;
     $speed_command = $arguments[0];
 }
 
+# Replace commands if -f option was used
 if ($option_f != 0){
     # read the entire contents of file and input into the string speed_command
     my $speed_command = do { local $/; <$f> };
@@ -106,7 +114,22 @@ else {
     # split the command(s) into single commands
     @commands = split("[;\n]", $speed_command);
 }
-$inputs = "STDIN";
+
+# Replace STDIN input if input files was provided
+if ($input_file_pos <= $#arguments){
+    #creates a array of input files name from arguments
+    @files = ();
+    $current_file = $input_file_pos;
+    while ($current_file <= $#arguments){
+        push (@files, $arguments[$current_file]);
+        $current_file++;
+    }
+    create_input_file(@files);
+    open $inputs, '<', "speed_input_temp_file_unique.txt" or print "speed: error\n" and exit 1;
+}
+else{
+    $inputs = "STDIN";
+}
 
 # Tracks with line number the program is on
 my $line_no = 0;
@@ -631,6 +654,9 @@ while (<$inputs>) {
 if ($option_f != 0){
     close $f;
 }
+if ($input_file_pos <= $#arguments){
+    close $inputs;
+}
 
 # breaks down a command into command, address's, regex's,
 sub command_breakdown {
@@ -1059,4 +1085,21 @@ sub whitespace_remover {
     $str1 =~ tr/\f//d;
     $str1 =~ tr/\r//d;
     return $str1;
+}
+
+# Takes in a list of files names and append file content into temp file
+sub create_input_file {
+
+    open $file, ">", "speed_input_temp_file_unique.txt" or print "speed: error\n" and exit 1;
+    for (@_) {
+        #select $file;
+        open $fh, '<', $_ or print "speed: error\n" and exit 1;
+        while (<$fh>){
+            chomp $_;
+            print $file "$_\n";
+        }
+        close $fh;
+    }
+
+    close $file;
 }
