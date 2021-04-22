@@ -113,6 +113,8 @@ $inputs = "STDIN";
 # Tracks with line number the program is on
 my $line_no = 0;
 my $within_range = 0;
+my $end_found = 0;
+
 # For each line passed into speed
 while (<$inputs>) {
     my $line = $_;
@@ -243,14 +245,15 @@ while (<$inputs>) {
                 }
                 # activate range
                 if ($line =~ m/$start/g){
-                    $print =1;
-                    if ($within_range != 1){ #(only activate once if end is already reached)
-                        $within_range++;
+                    $print = 1;
+                    if ($end_found != 1){
+                        $within_range = 1;
                     }
                 }
                 # deactivate range
                 elsif ($end == $line_no){
-                    $print =1;
+                    $print = 1;
+                    $end_found = 1;
                     $within_range = 0;
                 }
             }
@@ -368,13 +371,14 @@ while (<$inputs>) {
                 # activate range
                 if ($line =~ m/$start/g){
                     $delete = 1;
-                    if ($within_range != 1){ #(only activate once if end is already reached)
-                        $within_range++;
+                    if ($end_found != 1){
+                        $within_range = 1;
                     }
                 }
                 # deactivate range
                 elsif ($end == $line_no){
                     $delete = 1;
+                    $end_found = 1;
                     $within_range = 0;
                 }
             }
@@ -556,8 +560,8 @@ while (<$inputs>) {
                     else{
                         $line =~ s/$sub_regex/$substitute/;
                     }
-                    if ($within_range != 1){ #(only activate once if end is already reached)
-                        $within_range++;
+                    if ($end_found != 1){
+                        $within_range = 1;
                     }
                 }
                 # deactivate range
@@ -568,6 +572,7 @@ while (<$inputs>) {
                     else{
                         $line =~ s/$sub_regex/$substitute/;
                     }
+                    $end_found = 1;
                     $within_range = 0;
                 }
             }
