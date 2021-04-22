@@ -49,8 +49,7 @@ $option_f = 0;
 if ($option_i != 0 && $option_n != 0 && $option_f != 0){
     if (defined $arguments[3]) {
         open $f, '<', $arguments[3] or 
-        print "speed: couldn't open file $arguments[3]: No such file or directory\n";
-        exit 1;
+        print "speed: couldn't open file $arguments[3]: No such file or directory\n" and exit 1;
     }
     else {
         print "usage: speed [-i] [-n] [-f <script-file> | <sed-command>] [<files>...]\n";
@@ -60,8 +59,7 @@ if ($option_i != 0 && $option_n != 0 && $option_f != 0){
 elsif ($option_i != 0 && $option_f != 0){
     if (defined $arguments[2]) {
         open $f, '<', $arguments[2] or 
-        print "speed: couldn't open file $arguments[2]: No such file or directory\n";
-        exit 1;
+        print "speed: couldn't open file $arguments[2]: No such file or directory\n" and exit 1;
     }
     else {
         print "usage: speed [-i] [-n] [-f <script-file> | <sed-command>] [<files>...]\n";
@@ -71,8 +69,7 @@ elsif ($option_i != 0 && $option_f != 0){
 elsif ($option_n != 0 && $option_f != 0){
     if (defined $arguments[2]) {
         open $f, '<', $arguments[2] or 
-        print "speed: couldn't open file $arguments[2]: No such file or directory\n";
-        exit 1;
+        print "speed: couldn't open file $arguments[2]: No such file or directory\n" and exit 1;
     }
     else {
         print "usage: speed [-i] [-n] [-f <script-file> | <sed-command>] [<files>...]\n";
@@ -82,8 +79,7 @@ elsif ($option_n != 0 && $option_f != 0){
 elsif ($option_f != 0){
     if (defined $arguments[1]) {
         open $f, '<', $arguments[1] or 
-        print "speed: couldn't open file $arguments[1]: No such file or directory\n";
-        exit 1;
+        print "speed: couldn't open file $arguments[1]: No such file or directory\n" and exit 1;
     }
     else {
         print "usage: speed [-i] [-n] [-f <script-file> | <sed-command>] [<files>...]\n";
@@ -125,11 +121,10 @@ while (<$inputs>) {
     #0 = false, non-zero = true
     my $quit = 0;
     my $delete = 0;
-    my $print = 0;
     # For each command
     foreach my $s_command (@commands) {
         #print "$s_command\n";
-        
+        my $print = 0;
         my @info = command_breakdown($s_command);
         #print "command_type = $info[0], address type = $info[1]\n";
         my $command_type = $info[0];
@@ -632,6 +627,9 @@ while (<$inputs>) {
     if ($quit != 0){
         exit 0;
     }
+}
+if ($option_f != 0){
+    close $f;
 }
 
 # breaks down a command into command, address's, regex's,

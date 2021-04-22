@@ -24,6 +24,10 @@ cd "$test_dir" || exit 1
     seq 1 20 | ./speed.pl '1,$p;3q'
     seq 1 20 | ./speed.pl '1,$s/./-/;3q'
     seq 1 20 | ./speed.pl '2,3d;3q'
+    seq 1 20 | ./speed.pl  -n '10p;$p'
+
+    #autotest
+    seq 1 100 | ./speed.pl -n '1,/.1/p;/5/,/9/s/.//;/.{2}/,/.9/p;85q' #63
 
 ) >>"output.txt" 2>>"output.txt"
 
@@ -39,10 +43,10 @@ cd "solution"
     seq 1 20 | 2041 speed '1,$p;3q'
     seq 1 20 | 2041 speed '1,$s/./-/;3q'
     seq 1 20 | 2041 speed '2,3d;3q'
-
+    seq 1 20 | 2041 speed  -n '10p;$p'
+    
     #autotest fails
-    speed.pl -n '10p;$p' dictionary.txt
-    seq 1 100 | speed.pl -n '1,/.1/p;/5/,/9/s/.//;/.{2}/,/.9/p;85q'
+    seq 1 100 | 2041 speed -n '1,/.1/p;/5/,/9/s/.//;/.{2}/,/.9/p;85q' #63
 
 ) >>"sol.txt" 2>>"sol.txt"
 cd ..
