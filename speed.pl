@@ -133,8 +133,16 @@ else{
 
 # Tracks with line number the program is on
 my $line_no = 0;
-my $within_range = 0;
-my $end_found = 0;
+
+# variables to control ranges (one for each command to avoid mix up during mulitple commands)
+my $within_range_p = 0;
+my $within_range_d = 0;
+my $within_range_s = 0;
+# end found is only used in regex to line number ranges as it is only activated
+# once if end is already reached
+my $end_found_p = 0;
+my $end_found_d = 0;
+my $end_found_s = 0;
 
 # For each line passed into speed
 while (<$inputs>) {
@@ -214,18 +222,18 @@ while (<$inputs>) {
                     $end = $line_no;
                 }
                 # when within range activate command
-                if ($within_range == 1){
+                if ($within_range_p == 1){
                     $print =1;
                 }
                 # activate range
                 if ($start == $line_no){
                     $print =1;
-                    $within_range = 1;
+                    $within_range_p = 1;
                 }
                 # deactivate range
                 if ($end == $line_no){
                     $print =1;
-                    $within_range = 0;
+                    $within_range_p = 0;
                 }
             }
             elsif ($address_type eq "no_range_re"){
@@ -236,20 +244,20 @@ while (<$inputs>) {
                     $start = $line_no;
                 }
                 # when within range activate command
-                if ($within_range == 1){
+                if ($within_range_p == 1){
                     $print =1;
                 }
                 # activate range
                 if ($start == $line_no){
                     $print =1;
-                    $within_range = 1;
+                    $within_range_p = 1;
                 }
                 # deactivate range
                 elsif ($line =~ m/$end/g){
-                    if ($within_range == 1){
+                    if ($within_range_p == 1){
                         $print =1;
                     }
-                    $within_range = 0;
+                    $within_range_p = 0;
                 }
             }
             elsif ($address_type eq "re_range_no"){
@@ -260,43 +268,43 @@ while (<$inputs>) {
                     $end = $line_no;
                 }
                 # when within range activate command (only activate once if end is already reached)
-                if ($within_range == 1){
+                if ($within_range_p == 1){
                     $print =1;
                 }
                 # activate range
                 if ($line =~ m/$start/g){
                     $print = 1;
-                    if ($end_found != 1){
-                        $within_range = 1;
+                    if ($end_found_p != 1){
+                        $within_range_p = 1;
                     }
                 }
                 # deactivate range
                 elsif ($end == $line_no){
                     $print = 1;
-                    $end_found = 1;
-                    $within_range = 0;
+                    $end_found_p = 1;
+                    $within_range_p = 0;
                 }
             }
             elsif ($address_type eq "re_range_re"){
                 my $start = $info[2];
                 my $end = $info[3];
                 # when within range activate command
-                if ($within_range == 1){
+                if ($within_range_p == 1){
                     $print =1;
                 }
                 # activate range
                 if ($line =~ m/$start/g){
                     #print "started for $line\n";
                     $print =1;
-                    $within_range = 1;
+                    $within_range_p = 1;
                 }
                 # deactivate range
                 if ($line =~ m/$end/g){
                     #print "ended for $line\n";
-                    if ($within_range != 0){
+                    if ($within_range_p != 0){
                         $print =1;
                     }
-                    $within_range = 0;
+                    $within_range_p = 0;
                 }
             }
             else {
@@ -339,18 +347,18 @@ while (<$inputs>) {
                     $end = $line_no;
                 }
                 # when within range activate command
-                if ($within_range == 1){
+                if ($within_range_d == 1){
                     $delete = 1;
                 }
                 # activate range
                 if ($start == $line_no){
                     $delete = 1;
-                    $within_range = 1;
+                    $within_range_d = 1;
                 }
                 # deactivate range
                 if ($end == $line_no){
                     $delete = 1;
-                    $within_range = 0;
+                    $within_range_d = 0;
                 }
             }
             elsif ($address_type eq "no_range_re"){
@@ -361,20 +369,20 @@ while (<$inputs>) {
                     $start = $line_no;
                 }
                 # when within range activate command
-                if ($within_range == 1){
+                if ($within_range_d == 1){
                     $delete = 1;
                 }
                 # activate range
                 if ($start == $line_no){
                     $delete = 1;
-                    $within_range = 1;
+                    $within_range_d = 1;
                 }
                 # deactivate range
                 elsif ($line =~ m/$end/g){
-                    if ($within_range == 1){
+                    if ($within_range_d == 1){
                         $delete = 1;
                     }
-                    $within_range = 0;
+                    $within_range_d = 0;
                 }
             }
             elsif ($address_type eq "re_range_no"){
@@ -385,43 +393,43 @@ while (<$inputs>) {
                     $end = $line_no;
                 }
                 # when within range activate command (only activate once if end is already reached)
-                if ($within_range == 1){
+                if ($within_range_d == 1){
                     $delete = 1;
                 }
                 # activate range
                 if ($line =~ m/$start/g){
                     $delete = 1;
-                    if ($end_found != 1){
-                        $within_range = 1;
+                    if ($end_found_d != 1){
+                        $within_range_d = 1;
                     }
                 }
                 # deactivate range
                 elsif ($end == $line_no){
                     $delete = 1;
-                    $end_found = 1;
-                    $within_range = 0;
+                    $end_found_d = 1;
+                    $within_range_d = 0;
                 }
             }
             elsif ($address_type eq "re_range_re"){
                 my $start = $info[2];
                 my $end = $info[3];
                 # when within range activate command
-                if ($within_range == 1){
+                if ($within_range_d == 1){
                     $delete = 1;
                 }
                 # activate range
                 if ($line =~ m/$start/g){
                     #print "started for $line\n";
                     $delete = 1;
-                    $within_range = 1;
+                    $within_range_d = 1;
                 }
                 # deactivate range
                 if ($line =~ m/$end/g){
                     #print "ended for $line\n";
-                    if ($within_range != 0){
+                    if ($within_range_d != 0){
                         $delete = 1;
                     }
-                    $within_range = 0;
+                    $within_range_d = 0;
                 }
             }
             else {
@@ -474,6 +482,8 @@ while (<$inputs>) {
                 my $sub_regex = $info[4];
                 my $substitute = $info[5];
                 my $modifer = $info[6];
+                # only modify once
+                my $modifed = 0;
                 # change $address to current line number if address = '$' during the last loop
                 if ($start == -1 && eof) {
                     $start = $line_no;
@@ -482,7 +492,8 @@ while (<$inputs>) {
                     $end = $line_no;
                 }
                 # when within range activate command
-                if ($within_range == 1){
+                if ($within_range_s == 1){
+                    $modifed = 1;
                     if ($modifer eq 'g'){
                         $line =~ s/$sub_regex/$substitute/g;
                     }
@@ -491,24 +502,24 @@ while (<$inputs>) {
                     }
                 }
                 # activate range
-                if ($start == $line_no){
+                if ($start == $line_no && $modifed == 0 ){
                     if ($modifer eq 'g'){
                         $line =~ s/$sub_regex/$substitute/g;
                     }
                     else{
                         $line =~ s/$sub_regex/$substitute/;
                     }
-                    $within_range = 1;
+                    $within_range_s = 1;
                 }
                 # deactivate range
                 if ($end == $line_no){
-                    if ($modifer eq 'g'){
-                        $line =~ s/$sub_regex/$substitute/g;
-                    }
-                    else{
-                        $line =~ s/$sub_regex/$substitute/;
-                    }
-                    $within_range = 0;
+                    # if ($modifer eq 'g'){
+                    #     $line =~ s/$sub_regex/$substitute/g;
+                    # }
+                    # else{
+                    #     $line =~ s/$sub_regex/$substitute/;
+                    # }
+                    $within_range_s = 0;
                 }
             }
             elsif ($address_type eq "no_range_re"){
@@ -517,12 +528,17 @@ while (<$inputs>) {
                 my $sub_regex = $info[4];
                 my $substitute = $info[5];
                 my $modifer = $info[6];
+                # keep the orginal line as the modifed lines will make if statements useless
+                my $og_line = $line;
+                # only modify once
+                my $modifed = 0;
                 # change $address to current line number if address = '$' during the last loop
                 if ($start == -1 && eof) {
                     $start = $line_no;
                 }
                 # when within range activate command
-                if ($within_range == 1){
+                if ($within_range_s == 1){
+                    $modifed = 1;
                     if ($modifer eq 'g'){
                         $line =~ s/$sub_regex/$substitute/g;
                     }
@@ -531,26 +547,26 @@ while (<$inputs>) {
                     }
                 }
                 # activate range
-                if ($start == $line_no){
+                if ($start == $line_no && $modifed == 0){
                     if ($modifer eq 'g'){
                         $line =~ s/$sub_regex/$substitute/g;
                     }
                     else{
                         $line =~ s/$sub_regex/$substitute/;
                     }
-                    $within_range = 1;
+                    $within_range_s = 1;
                 }
                 # deactivate range
-                elsif ($line =~ m/$end/g){
-                    if ($within_range == 1){
-                        if ($modifer eq 'g'){
-                            $line =~ s/$sub_regex/$substitute/g;
-                        }
-                        else{
-                            $line =~ s/$sub_regex/$substitute/;
-                        }
-                    }
-                    $within_range = 0;
+                elsif ($og_line =~ m/$end/g){
+                    # if ($within_range_s == 1){
+                    #     if ($modifer eq 'g'){
+                    #         $line =~ s/$sub_regex/$substitute/g;
+                    #     }
+                    #     else{
+                    #         $line =~ s/$sub_regex/$substitute/;
+                    #     }
+                    # }
+                    $within_range_s = 0;
                 }
             }
             elsif ($address_type eq "re_range_no"){
@@ -559,12 +575,17 @@ while (<$inputs>) {
                 my $sub_regex = $info[4];
                 my $substitute = $info[5];
                 my $modifer = $info[6];
+                # keep the orginal line as the modifed lines will make if statements useless
+                my $og_line = $line;
+                # only modify once
+                my $modifed = 0;
                 # change $address to current line number if address = '$' during the last loop
                 if ($end == -1 && eof) {
                     $end = $line_no;
                 }
                 # when within range activate command (only activate once if end is already reached)
-                if ($within_range == 1){
+                if ($within_range_s == 1){
+                    $modifed = 1;
                     if ($modifer eq 'g'){
                         $line =~ s/$sub_regex/$substitute/g;
                     }
@@ -573,27 +594,27 @@ while (<$inputs>) {
                     }
                 }
                 # activate range
-                if ($line =~ m/$start/g){
-                    if ($modifer eq 'g'){
+                if ($og_line =~ m/$start/g){
+                    if ($modifer eq 'g' && $modifed == 0){
                         $line =~ s/$sub_regex/$substitute/g;
                     }
-                    else{
+                    elsif ($modifed == 0){
                         $line =~ s/$sub_regex/$substitute/;
                     }
-                    if ($end_found != 1){
-                        $within_range = 1;
+                    if ($end_found_s != 1){
+                        $within_range_s = 1;
                     }
                 }
                 # deactivate range
                 elsif ($end == $line_no){
-                    if ($modifer eq 'g'){
-                        $line =~ s/$sub_regex/$substitute/g;
-                    }
-                    else{
-                        $line =~ s/$sub_regex/$substitute/;
-                    }
-                    $end_found = 1;
-                    $within_range = 0;
+                    # if ($modifer eq 'g'){
+                    #     $line =~ s/$sub_regex/$substitute/g;
+                    # }
+                    # else{
+                    #     $line =~ s/$sub_regex/$substitute/;
+                    # }
+                    $end_found_s = 1;
+                    $within_range_s = 0;
                 }
             }
             elsif ($address_type eq "re_range_re"){
@@ -602,9 +623,14 @@ while (<$inputs>) {
                 my $sub_regex = $info[4];
                 my $substitute = $info[5];
                 my $modifer = $info[6];
-                #print "start = $start end=$end\n";
+                # keep the orginal line as the modifed lines will make if statements useless
+                my $og_line = $line;
+                # only modify once
+                my $modifed = 0;
                 # when within range activate command
-                if ($within_range == 1){
+                if ($within_range_s == 1){
+                    #print "modified\n";
+                    $modifed = 1;
                     if ($modifer eq 'g'){
                         $line =~ s/$sub_regex/$substitute/g;
                     }
@@ -613,28 +639,27 @@ while (<$inputs>) {
                     }
                 }
                 # activate range
-                if ($line =~ m/$start/g){
+                if ($og_line =~ m/$start/g){
                     #print "started for $line\n";
-                    if ($modifer eq 'g'){
+                    if ($modifer eq 'g'&& $modifed == 0){
                         $line =~ s/$sub_regex/$substitute/g;
                     }
-                    else{
+                    elsif ($modifed == 0){
                         $line =~ s/$sub_regex/$substitute/;
                     }
-                    $within_range = 1;
+                    $within_range_s = 1;
                 }
                 # deactivate range
-                if ($line =~ m/$end/g){
-                    #print "ended for $line\n";
-                    if ($within_range != 0){
-                        if ($modifer eq 'g'){
-                            $line =~ s/$sub_regex/$substitute/g;
-                        }
-                        else{
-                            $line =~ s/$sub_regex/$substitute/;
-                        }
-                    }
-                    $within_range = 0;
+                if ($og_line =~ m/$end/g){
+                    # if ($within_range_s != 1){
+                    #     if ($modifer eq 'g'){
+                    #         $line =~ s/$sub_regex/$substitute/g;
+                    #     }
+                    #     else{
+                    #         $line =~ s/$sub_regex/$substitute/;
+                    #     }
+                    # }
+                    $within_range_s = 0;
                 }
             }
             else {
