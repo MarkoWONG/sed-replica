@@ -15,17 +15,19 @@ cd "$test_dir" || exit 1
 
 # Begin tests:
 (
-    seq 1 100 | ./speed.pl -n '1,/.1/p;/5/,/9/s/.//;' #/.{2}/,/.9/p;85q;'
-    #seq 1 100 | ./speed.pl '1,/.1/p;/5/,/9/s/.//;' #/.{2}/,/.9/p;85q;'
-    #seq 1 100 | ./speed.pl '/5/,/9/s/.//;' #/.{2}/,/.9/p;85q;'
+    seq 1 100 | ./speed.pl -n '1,/.1/p;/5/,/9/s/.//;/.{2}/,/.9/p;85q;'
+    #seq 1 100 | ./speed.pl -n '1,/.1/p;/.{2}/,/.9/p;' #85q;' # each range variable varient need it's own variable
+    #seq 1 100 | ./speed.pl '1,/.1/p;/5/,/9/s/.//;' #keep orinal lines when comparing and need own range variables
+    #seq 1 100 | ./speed.pl '/5/,/9/s/.//;' #only modify things once
 ) >>"output.txt" 2>>"output.txt"
 
 mkdir "solution"
 cd "solution"
 (
-    seq 1 100 | 2041 speed -n '1,/.1/p;/5/,/9/s/.//;' #/.{2}/,/.9/p;85;'
-    #seq 1 100 | 2041 speed '1,/.1/p;/5/,/9/s/.//;' #/.{2}/,/.9/p;85;'
-    #seq 1 100 | 2041 speed '/5/,/9/s/.//;' #/.{2}/,/.9/p;85;'
+    seq 1 100 | 2041 speed -n '1,/.1/p;/5/,/9/s/.//;/.{2}/,/.9/p;85q;'
+    #seq 1 100 | 2041 speed -n '1,/.1/p;/.{2}/,/.9/p;' #85q;'
+    #seq 1 100 | 2041 speed '1,/.1/p;/5/,/9/s/.//;' #/.{2}/,/.9/p;85q;'
+    #seq 1 100 | 2041 speed '/5/,/9/s/.//;' #/.{2}/,/.9/p;85q;'
 ) >>"sol.txt" 2>>"sol.txt"
 cd ..
 NC='\033[0m' # No Color
