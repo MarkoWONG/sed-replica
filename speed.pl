@@ -21,7 +21,7 @@
 #     break if quit
 
 use Getopt::Long;
-
+use File::Temp qw(tempfile);
 # Main Code
 # USAGE ERROR: No arguments passed
 if ($#ARGV == -1) {
@@ -125,7 +125,7 @@ if ($input_file_pos <= $#arguments){
         $current_file++;
     }
     create_input_file(@files);
-    open $inputs, '<', "speed_input_temp_file_unique.txt" or print "speed: error\n" and exit 1;
+    open $inputs, '<', $input_temp_file or print "speed: error\n" and exit 1;
 }
 else{
     $inputs = "STDIN";
@@ -654,9 +654,6 @@ while (<$inputs>) {
 if ($option_f != 0){
     close $f;
 }
-if ($input_file_pos <= $#arguments){
-    close $inputs;
-}
 
 # breaks down a command into command, address's, regex's,
 sub command_breakdown {
@@ -1089,8 +1086,8 @@ sub whitespace_remover {
 
 # Takes in a list of files names and append file content into temp file
 sub create_input_file {
-
-    open $file, ">", "speed_input_temp_file_unique.txt" or print "speed: error\n" and exit 1;
+    ($fh, $input_temp_file) = tempfile( );
+    open($file, ">", $input_temp_file) or print "speed: error\n" and exit 1;
     for (@_) {
         #select $file;
         open $fh, '<', $_ or print "speed: error\n" and exit 1;
