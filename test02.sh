@@ -80,6 +80,23 @@ cd "$test_dir" || exit 1
     echo $?
     seq 1 10 | ./speed.pl $,\$d
     echo $?
+    # using more than one $ should give error
+    seq 1 10 | ./speed.pl '1,$$d'
+    echo $?
+    seq 1 10 | ./speed.pl '$$,4d'
+    echo $?
+    seq 1 10 | ./speed.pl '1,$$p'
+    echo $?
+    seq 1 10 | ./speed.pl '$$,4p'
+    echo $?
+    seq 1 10 | ./speed.pl '1,$$s/./4/'
+    echo $?
+    seq 1 10 | ./speed.pl '$$,4s/./4/'
+    echo $?
+    seq 1 10 | ./speed.pl '1,$$s/./4/g'
+    echo $?
+    seq 1 10 | ./speed.pl '$$,4s/./4/g'
+    echo $?
 
     # normal working cases
     # line to line
@@ -179,6 +196,23 @@ cd "solution"
     seq 1 10 | 2041 speed $,\$p
     echo $?
     seq 1 10 | 2041 speed $,\$d
+    echo $?
+    # using more than one $ should give error
+    seq 1 10 | 2041 speed '1,$$d'
+    echo $?
+    seq 1 10 | 2041 speed '$$,4d'
+    echo $?
+    seq 1 10 | 2041 speed '1,$$p'
+    echo $?
+    seq 1 10 | 2041 speed '$$,4p'
+    echo $?
+    seq 1 10 | 2041 speed '1,$$s/./4/'
+    echo $?
+    seq 1 10 | 2041 speed '$$,4s/./4/'
+    echo $?
+    seq 1 10 | 2041 speed '1,$$s/./4/g'
+    echo $?
+    seq 1 10 | 2041 speed '$$,4s/./4/g'
     echo $?
 
     # normal working cases

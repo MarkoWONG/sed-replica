@@ -687,6 +687,20 @@ sub command_breakdown {
         $end = $2;
         $command_type = $3;
         $comment = $4;
+        #if $ is used for line number then there can only be one $
+        if ($start =~ m/\$/g){
+            if ($start ne '$'){
+                print "speed: command line: invalid command\n";
+                exit 1;
+            }
+        }
+        if ($end =~ m/\$/g){
+            if ($end ne '$'){
+                print "speed: command line: invalid command\n";
+                exit 1;
+            }
+        }
+
         # ranges can't be used on quit
         if ($command_type eq 'q'){
             print "speed: command line: invalid command\n";
@@ -758,6 +772,13 @@ sub command_breakdown {
         $end = $2;
         $command_type = $3;
         $comment = $4;
+        #if $ is used for line number then there can only be one $
+        if ($start =~ m/\$/g){
+            if ($start ne '$'){
+                print "speed: command line: invalid command\n";
+                exit 1;
+            }
+        }
         # ranges can't be used on quit
         if ($command_type eq 'q'){
             print "speed: command line: invalid command\n";
@@ -823,6 +844,13 @@ sub command_breakdown {
         $end = $2;
         $command_type = $3;
         $comment = $4;
+        #if $ is used for line number then there can only be one $
+        if ($end =~ m/\$/g){
+            if ($end ne '$'){
+                print "speed: command line: invalid command\n";
+                exit 1;
+            }
+        }
         # ranges can't be used on quit
         if ($command_type eq 'q'){
             print "speed: command line: invalid command\n";
@@ -982,6 +1010,13 @@ sub command_breakdown {
         # For line_number address
         elsif ($address =~ m/^\s*([0-9\$]*)\s*$/g){
             my $line_no = $1;
+            #if $ is used for line number then there can only be one $
+            if ($line_no =~ m/\$/g){
+                if ($line_no ne '$'){
+                    print "speed: command line: invalid command\n";
+                    exit 1;
+                }
+            }
             if ($line_no ne '$' && $line_no <= 0){
                 print "speed: command line: invalid command\n";
                 exit 1;
@@ -1040,6 +1075,13 @@ sub command_breakdown {
         my $line_no = $1;
         my $command_type = $2;
         my $comment = $3;
+        #if $ is used for line number then there can only be one $
+        if ($line_no =~ m/\$/g){
+            if ($line_no ne '$'){
+                print "speed: command line: invalid command\n";
+                exit 1;
+            }
+        }
         # remove whitespaces from comment
         $comment = whitespace_remover($comment);
         # check for valid comment

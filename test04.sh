@@ -1,5 +1,5 @@
 #!/bin/dash
-# Test script for multiple commands
+# Test script for multiple commands (not including ranges)
 # Line 5,8,14 are from lecture code
 # Make a temp directory for testing
 test_dir=$(mktemp -d /tmp/dir.XXXXXXXXXX)
@@ -61,11 +61,11 @@ diff -s "output.txt" "solution/sol.txt" >/dev/null 2>/dev/null
 if [ $? -eq 0 ]
 then
     GREEN='\033[0;32m';
-    echo "Test04 (Multiple commands) -${GREEN}PASSED${NC}"
+    echo "Test04 (Multiple commands - non range) -${GREEN}PASSED${NC}"
     exit 0
 else
     RED='\033[0;31m';
-    echo "Test04 (Multiple commands)  -${RED}FAILED${NC}"
+    echo "Test04 (Multiple commands - non range)  -${RED}FAILED${NC}"
     echo "<<<<<< Your answer on the left <<<<<<<                          >>>>>> Solution on the right >>>>>>>>"
     diff -y "output.txt" "solution/sol.txt"
     exit 1

@@ -1,5 +1,5 @@
 #!/bin/dash
-# Test script for 
+# Test script for subset 0 and 1
 # Line 5,8,14 are from lecture code
 # Make a temp directory for testing
 test_dir=$(mktemp -d /tmp/dir.XXXXXXXXXX)

@@ -15,41 +15,97 @@ cd "$test_dir" || exit 1
 
 # Begin tests:
 (
+    # normal delimitor
+    seq 1 10 | ./speed.pl 's/./2/'
+    seq 1 10 | ./speed.pl 's/./2/g'
+
+    # new delimitor
+    # symbol as delimitor
+    seq 1 10 | ./speed.pl 's@.@2@'
+    echo $?
+    seq 1 10 | ./speed.pl 's@.@2@g'
+    echo $?
+    # letter as delimitor
+    echo $?
+    seq 1 10 | ./speed.pl 'sa.a2a'
+    echo $?
+    seq 1 10 | ./speed.pl 'sa.a2ag'
+    echo $?
+    # number as delimitor
+    echo $?
+    seq 1 10 | ./speed.pl 's1.121'
+    echo $?
+    seq 1 10 | ./speed.pl 's1.121g'
+    echo $?
+    
+    # '#' delimitor (testing for proper comment dectection)
+    seq 1 10 | ./speed.pl 's#.#2#'
+    echo $?
+    seq 1 10 | ./speed.pl 's#.#2#g'
+    echo $?
+    seq 1 10 | ./speed.pl 's#.#2#   #work plz '
+    echo $?
+    seq 1 10 | ./speed.pl 's#.#2#g  #DH? '
+    echo $?
+
+    # '/' in regex instead as delimitor
+    seq 1 10 | ./speed.pl 's!.!/!' 
+    echo $?
+    seq 1 10 | ./speed.pl 's!.!/!g' 
+    echo $?
+    echo 'dvalv/vaadev' | ./speed.pl 's_/_r_'
+    echo $?
+    echo 'dvalv/vaadev' | ./speed.pl 's_/_r_g'
+    echo $?
 
 ) >>"output.txt" 2>>"output.txt"
 
 mkdir "solution"
 cd "solution"
 (
-    seq 10 40 | speed.pl '/2/,4p'
-    # using $$ 
+    # normal delimitor
+    seq 1 10 | 2041 speed 's/./2/'
+    seq 1 10 | 2041 speed 's/./2/g'
 
-
-    # $ as a line number in , commands
-    seq 10 21 | 2041 speed '3,$d'
-    seq 10 21 | 2041 speed '$,3d'
-
-    # mulitple matches for 1st address but 2nd address is line_no so only apply for the match, range don't start
-    seq 493 500 | 2041 speed '/4/,5p'
-    seq 494 500 | ./speed.pl '/4/,5p'
-    seq 10 35 | ./speed.pl '/2/,4d'
-
-    # activating the range when already in range
-    seq 10 35 | ./speed.pl '/2/,$d'
-
-    # don't match 2nd regex when not in range
-    seq 10 35 | ./speed.pl '/1$/,/^2/d'
-
-    # mulitple matches for 1st address regex to regex
-
-    # muliple matches for the 2nd address
-    seq 10 25 | ./speed.pl '3,/2/s/1/9/g'
+    # new delimitor
+    # symbol as delimitor
+    seq 1 10 | 2041 speed 's@.@2@'
+    echo $?
+    seq 1 10 | 2041 speed 's@.@2@g'
+    echo $?
+    # letter as delimitor
+    echo $?
+    seq 1 10 | 2041 speed 'sa.a2a'
+    echo $?
+    seq 1 10 | 2041 speed 'sa.a2ag'
+    echo $?
+    # number as delimitor
+    echo $?
+    seq 1 10 | 2041 speed 's1.121'
+    echo $?
+    seq 1 10 | 2041 speed 's1.121g'
+    echo $?
     
-    # ranges match the first apperence of 1st address then match until the first 
-    # apperence of 2nd address. 
+    # '#' delimitor (testing for proper comment dectection)
+    seq 1 10 | 2041 speed 's#.#2#'
+    echo $?
+    seq 1 10 | 2041 speed 's#.#2#g'
+    echo $?
+    seq 1 10 | 2041 speed 's#.#2#   #work plz '
+    echo $?
+    seq 1 10 | 2041 speed 's#.#2#g  #DH? '
+    echo $?
 
-    # ranges can be applied more than once
-    seq 10 31 | 2041 speed '/1$/,/^2/d'
+    # '/' in regex instead as delimitor
+    seq 1 10 | 2041 speed 's!.!/!' 
+    echo $?
+    seq 1 10 | 2041 speed 's!.!/!g' 
+    echo $?
+    echo 'dvalv/vaadev' | 2041 speed 's_/_r_'
+    echo $?
+    echo 'dvalv/vaadev' | 2041 speed 's_/_r_g'
+    echo $?
+
 ) >>"sol.txt" 2>>"sol.txt"
 cd ..
 NC='\033[0m' # No Color
