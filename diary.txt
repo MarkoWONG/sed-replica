@@ -14,5 +14,5 @@ Date	    Start	Stop	Activity	        Comments
 22/04/2021  12:00   18:00   coding              implemented ranges
 22/04/2021  20:00   23:30   coding              finished implementing subset 1 with one bug
 23/04/2021  19:30   22:30   debugging           Fixed bug in subset 1, now subset 1 autotest all pass
-24/04/2021  18:00   23:00   debugging           Wrote 4 test scripts
+24/04/2021  18:00   23:00   debugging           Wrote 4 test scripts and implemented non greedy matching along with error when range with quit
 25/04/2021  18:00   23:00   debugging           Wrote final 4 test scripts

@@ -1,6 +1,6 @@
 #!/bin/dash
 # Test script for subset0: with address
-# Line 5,8,20 are from lecture code
+# Line 5,8,14 are from lecture code
 # Make a temp directory for testing
 test_dir=$(mktemp -d /tmp/dir.XXXXXXXXXX)
 
@@ -271,9 +271,11 @@ if [ $? -eq 0 ]
 then
     GREEN='\033[0;32m';
     echo "Test01 (subset0: with address) -${GREEN}PASSED${NC}"
+    exit 0
 else
     RED='\033[0;31m';
     echo "Test01 (subset0: with address)  -${RED}FAILED${NC}"
     echo "<<<<<< Your answer on the left <<<<<<<                          >>>>>> Solution on the right >>>>>>>>"
     diff -y "output.txt" "solution/sol.txt"
+    exit 1
 fi

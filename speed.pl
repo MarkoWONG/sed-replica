@@ -681,12 +681,17 @@ sub command_breakdown {
         return @result;
     }
     # For line_no to line_no range
-    elsif ($command =~ m/^\s*([0-9\$]+)\s*,\s*([0-9\$]+)\s*([pds])\s*(.*)$/g) {
+    elsif ($command =~ m/^\s*([0-9\$]+)\s*,\s*([0-9\$]+)\s*([qpds])\s*(.*)$/g) {
         #print "line_no to line_no range\n";
         $start = $1;
         $end = $2;
         $command_type = $3;
         $comment = $4;
+        # ranges can't be used on quit
+        if ($command_type eq 'q'){
+            print "speed: command line: invalid command\n";
+            exit 1;
+        }
         # assign -1 to address of '$'
         if ($start eq '$'){
             $start = -1;
@@ -700,7 +705,7 @@ sub command_breakdown {
         #print "$command_type\n";
 
         if ($command_type eq 's'){
-            if ($comment =~ m/\Q$delimitor\E(.*)\Q$delimitor\E(.*)\Q$delimitor\E(.*)?/g){
+            if ($comment =~ m/\Q$delimitor\E(.+?)\Q$delimitor\E(.*?)\Q$delimitor\E(.*)?/g){
                 my $sub_regex = $1;
                 my $substitute = $2;
                 my $modifer = $3;
@@ -723,13 +728,13 @@ sub command_breakdown {
                         $modifer = '';
                     }
                 }
-                #check for valid sub_regex
-                if ($sub_regex eq ''){
-                    print "speed: command line: invalid command\n";
-                    exit 1;
-                }
                 @result = ($command_type, "no_range_no", $start, $end, $sub_regex, $substitute, $modifer);
                 return @result;
+            }
+            # invalid subtitute command 
+            else {
+                print "speed: command line: invalid command\n";
+                exit 1;
             }
         }
         else {
@@ -747,18 +752,24 @@ sub command_breakdown {
         }
     }
     # For line_no to regex range
-    elsif ($command =~ m/^\s*([0-9\$]+)\s*,\s*\/(.+)\/\s*([pds])\s*(.*)$/g) {
+    elsif ($command =~ m/^\s*([0-9\$]+)\s*,\s*\/(.+?)\/\s*([qpds])\s*(.*)$/g) {
         #print "line_no to regex range\n";
         $start = $1;
         $end = $2;
         $command_type = $3;
         $comment = $4;
+        # ranges can't be used on quit
+        if ($command_type eq 'q'){
+            print "speed: command line: invalid command\n";
+            exit 1;
+        }
         # assign -1 to address of '$'
         if ($start eq '$'){
             $start = -1;
         }
         if ($command_type eq 's'){
-            if ($comment =~ m/\Q$delimitor\E(.*)\Q$delimitor\E(.*)\Q$delimitor\E(.*)?/g){
+            #print "= $comment\n";
+            if ($comment =~ m/\Q$delimitor\E(.+?)\Q$delimitor\E(.*?)\Q$delimitor\E(.*)?/g){
                 my $sub_regex = $1;
                 my $substitute = $2;
                 my $modifer = $3;
@@ -781,15 +792,16 @@ sub command_breakdown {
                         $modifer = '';
                     }
                 }
-                #check for valid sub_regex
-                if ($sub_regex eq ''){
-                    print "speed: command line: invalid command\n";
-                    exit 1;
-                }
                 @result = ($command_type, "no_range_re", $start, $end, $sub_regex, $substitute, $modifer);
                 return @result;
             }
+            # invalid subtitute command 
+            else {
+                print "speed: command line: invalid command\n";
+                exit 1;
+            }
         }
+        # For other commands besides subtitute
         else {
             # remove whitespaces from comment
             $comment = whitespace_remover($comment);
@@ -805,18 +817,23 @@ sub command_breakdown {
         }
     }
     # For regex to line_no range
-    elsif ($command =~ m/^\s*\/(.+)\/\s*,\s*([0-9\$]+)\s*([pds])\s*(.*)$/g) {
+    elsif ($command =~ m/^\s*\/(.+?)\/\s*,\s*([0-9\$]+)\s*([qpds])\s*(.*)$/g) {
         #print "regex to line_no range\n";
         $start = $1;
         $end = $2;
         $command_type = $3;
         $comment = $4;
+        # ranges can't be used on quit
+        if ($command_type eq 'q'){
+            print "speed: command line: invalid command\n";
+            exit 1;
+        }
         # assign -1 to address of '$'
         if ($end eq '$'){
             $end = -1;
         }
         if ($command_type eq 's'){
-            if ($comment =~ m/\Q$delimitor\E(.*)\Q$delimitor\E(.*)\Q$delimitor\E(.*)?/g){
+            if ($comment =~ m/\Q$delimitor\E(.+?)\Q$delimitor\E(.*?)\Q$delimitor\E(.*)?/g){
                 my $sub_regex = $1;
                 my $substitute = $2;
                 my $modifer = $3;
@@ -839,13 +856,13 @@ sub command_breakdown {
                         $modifer = '';
                     }
                 }
-                #check for valid sub_regex
-                if ($sub_regex eq ''){
-                    print "speed: command line: invalid command\n";
-                    exit 1;
-                }
                 @result = ($command_type, "re_range_no", $start, $end, $sub_regex, $substitute, $modifer);
                 return @result;
+            }
+            # invalid subtitute command 
+            else {
+                print "speed: command line: invalid command\n";
+                exit 1;
             }
         }
         else {
@@ -863,14 +880,19 @@ sub command_breakdown {
         }
     }
     # For regex to regex range
-    elsif ($command =~ m/^\s*\/(.+)\/\s*,\s*\/(.+)\/\s*([pds])\s*(.*)$/g) {
+    elsif ($command =~ m/^\s*\/(.+?)\/\s*,\s*\/(.+?)\/\s*([qpds])\s*(.*)$/g) {
         #print "regex to regex range\n";
         $start = $1;
         $end = $2;
         $command_type = $3;
         $comment = $4;
+        # ranges can't be used on quit
+        if ($command_type eq 'q'){
+            print "speed: command line: invalid command\n";
+            exit 1;
+        }
         if ($command_type eq 's'){
-            if ($comment =~ m/\Q$delimitor\E(.*)\Q$delimitor\E(.*)\Q$delimitor\E(.*)?/g){
+            if ($comment =~ m/\Q$delimitor\E(.+?)\Q$delimitor\E(.*?)\Q$delimitor\E(.*)?/g){
                 my $sub_regex = $1;
                 my $substitute = $2;
                 my $modifer = $3;
@@ -893,13 +915,13 @@ sub command_breakdown {
                         $modifer = '';
                     }
                 }
-                #check for valid sub_regex
-                if ($sub_regex eq ''){
-                    print "speed: command line: invalid command\n";
-                    exit 1;
-                }
                 @result = ($command_type, "re_range_re", $start, $end, $sub_regex, $substitute, $modifer);
                 return @result;
+            }
+            # invalid subtitute command 
+            else {
+                print "speed: command line: invalid command\n";
+                exit 1;
             }
         }
         else {
@@ -917,7 +939,7 @@ sub command_breakdown {
         }
     }
     # For substitute command type
-    elsif ($command =~ m/(.*)s\Q$delimitor\E(.*)\Q$delimitor\E(.*)\Q$delimitor\E(.*)?/g){
+    elsif ($command =~ m/(.*?)s\Q$delimitor\E(.+?)\Q$delimitor\E(.*?)\Q$delimitor\E(.*)?/g){
         my $address = $1;
         my $command_type = 's';
         my $sub_regex = $2;
@@ -941,12 +963,6 @@ sub command_breakdown {
             elsif ($modifer =~ m/^#.*$/g){
                 $modifer = '';
             }
-        }
-
-        #check for valid sub_regex
-        if ($sub_regex eq ''){
-            print "speed: command line: invalid command\n";
-            exit 1;
         }
 
         # For no address
@@ -1001,7 +1017,7 @@ sub command_breakdown {
         return @result;
     }
     # For Regex address
-    elsif ($command =~ m/^\s*\/(.+)\/\s*([qdp])(.*)$/g){
+    elsif ($command =~ m/^\s*\/(.+?)\/\s*([qdp])(.*)$/g){
         my $regex = $1;
         my $command_type = $2;
         my $comment = $3;
