@@ -15,7 +15,7 @@ cd "$test_dir" || exit 1
 
 # Begin tests:
 (
-    # create a command input file with comments
+    # create an invlaid command input file with comments
     # header comments
     echo "#Yo this is a test command input file" > temp1.txt
     echo "# Written By Marko Wong" >> temp1.txt
@@ -23,7 +23,22 @@ cd "$test_dir" || exit 1
     echo "" >>temp1.txt
     #commands with comments
     echo "2p #print line 2" >> temp1.txt
-    #echo "1,/5s/./-/g # print from line 1 til regex match 5" >> temp1.txt  #produce error with extra info
+    echo "1,/5s/./-/g # print from line 1 til regex match 5" >> temp1.txt  #produce error
+    # just a comment
+    echo "# now halfway through commands" >>temp1.txt
+    echo "9p; 10q # print line 9 and quit on line 10" >>temp1.txt
+    echo "" >>temp1.txt
+    seq 1 10 | 2041 speed -f temp1.txt
+    echo $?
+
+    # create a valid command input file with comments
+    # header comments
+    echo "#Yo this is a test command input file" > temp1.txt
+    echo "# Written By Marko Wong" >> temp1.txt
+    echo "# on the 25/04/2021" >> temp1.txt 
+    echo "" >>temp1.txt
+    #commands with comments
+    echo "2p #print line 2" >> temp1.txt
     echo "1,/5/s/./-/g # print from line 1 til regex match 5" >> temp1.txt 
     # just a comment
     echo "# now halfway through commands" >>temp1.txt
@@ -48,14 +63,33 @@ cd "$test_dir" || exit 1
     ./speed.pl -f temp1.txt temp2.txt
     echo $?
 
-
+    # invalid command within a mulitple command seperated by spaces
+    # echo "2p; 1,/5s/./-/g # print from line 1 til regex match 5" > tempX.txt
+    # ./speed.pl -f tempX.txt temp2.txt
+    # echo $?
 
 ) >>"output.txt" 2>>"output.txt"
 
 mkdir "solution"
 cd "solution"
 (
-    # create a command input file with comments
+    # create an invlaid command input file with comments
+    # header comments
+    echo "#Yo this is a test command input file" > temp1.txt
+    echo "# Written By Marko Wong" >> temp1.txt
+    echo "# on the 25/04/2021" >> temp1.txt 
+    echo "" >>temp1.txt
+    #commands with comments
+    echo "2p #print line 2" >> temp1.txt
+    echo "1,/5s/./-/g # print from line 1 til regex match 5" >> temp1.txt  #produce error
+    # just a comment
+    echo "# now halfway through commands" >>temp1.txt
+    echo "9p; 10q # print line 9 and quit on line 10" >>temp1.txt
+    echo "" >>temp1.txt
+    seq 1 10 | 2041 speed -f temp1.txt
+    echo $?
+
+    # create a valid command input file with comments
     # header comments
     echo "#Yo this is a test command input file" > temp1.txt
     echo "# Written By Marko Wong" >> temp1.txt
@@ -86,6 +120,12 @@ cd "solution"
 
     2041 speed -f temp1.txt temp2.txt
     echo $?
+
+    # invalid command within a mulitple command seperated by spaces
+    # echo "2p; 1,/5s/./-/g # print from line 1 til regex match 5" > tempX.txt
+    # 2041 speed -f tempX.txt temp2.txt
+    # echo $?
+
 ) >>"sol.txt" 2>>"sol.txt"
 cd ..
 NC='\033[0m' # No Color

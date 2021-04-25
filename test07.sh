@@ -15,17 +15,7 @@ cd "$test_dir" || exit 1
 
 # Begin tests:
 (
-    # don't do anything on quit line if quit has piority
-    seq 1 20 | ./speed.pl '3q;1,$p'
-    seq 1 20 | ./speed.pl '3q;1,$s/./-/'
-    seq 1 20 | ./speed.pl '3q;2,3d'
-
-    # if quit don't have piority then don't do anything?
-    seq 1 20 | ./speed.pl '1,$p;3q'
-    seq 1 20 | ./speed.pl '1,$s/./-/;3q'
-    seq 1 20 | ./speed.pl '2,3d;3q'
-    seq 1 20 | ./speed.pl  -n '10p;$p'
-
+    
 ) >>"output.txt" 2>>"output.txt"
 
 mkdir "solution"

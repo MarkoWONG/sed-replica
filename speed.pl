@@ -48,6 +48,7 @@ $option_f = 0;
 # Set the speed_command or use command line or input file
 if ($option_i != 0 && $option_n != 0 && $option_f != 0){
     $input_file_pos = 4;
+    $command_file_name = $arguments[3];
     if (defined $arguments[3]) {
         open $f, '<', $arguments[3] or 
         print "speed: couldn't open file $arguments[3]: No such file or directory\n" and exit 1;
@@ -59,6 +60,7 @@ if ($option_i != 0 && $option_n != 0 && $option_f != 0){
 }
 elsif ($option_i != 0 && $option_f != 0){
     $input_file_pos = 3;
+    $command_file_name = $arguments[3];
     if (defined $arguments[2]) {
         open $f, '<', $arguments[2] or 
         print "speed: couldn't open file $arguments[2]: No such file or directory\n" and exit 1;
@@ -70,6 +72,7 @@ elsif ($option_i != 0 && $option_f != 0){
 }
 elsif ($option_n != 0 && $option_f != 0){
     $input_file_pos = 3;
+    $command_file_name = $arguments[2];
     if (defined $arguments[2]) {
         open $f, '<', $arguments[2] or 
         print "speed: couldn't open file $arguments[2]: No such file or directory\n" and exit 1;
@@ -81,6 +84,7 @@ elsif ($option_n != 0 && $option_f != 0){
 }
 elsif ($option_f != 0){
     $input_file_pos = 2;
+    $command_file_name = $arguments[1];
     if (defined $arguments[1]) {
         open $f, '<', $arguments[1] or 
         print "speed: couldn't open file $arguments[1]: No such file or directory\n" and exit 1;
@@ -92,14 +96,17 @@ elsif ($option_f != 0){
 }
 elsif ($option_i != 0 && $option_n != 0){
     $input_file_pos = 3;
+    $command_file_name = 'none';
     $speed_command = $arguments[2];
 }
 elsif ($option_i != 0 || $option_n != 0){
     $input_file_pos = 2;
+    $command_file_name = 'none';
     $speed_command = $arguments[1];
 }
 else{
     $input_file_pos = 1;
+    $command_file_name = 'none';
     $speed_command = $arguments[0];
 }
 
@@ -163,13 +170,13 @@ while (<$inputs>) {
     #0 = false, non-zero = true
     my $quit = 0;
     my $delete = 0;
-    # my command_no = 0;
+    my $command_no = 0;
     # For each command
     foreach my $s_command (@commands) {
-        # command_no++; # IMPLEMENT REFER TO TEST08 ETGSDF SDG SDG SDG SDG SD GSDGG SDGSD 
         #print "$s_command\n";
         my $print = 0;
-        my @info = command_breakdown($s_command);
+        $command_no++;
+        my @info = command_breakdown($s_command, $command_no, $option_f, $command_file_name);
         #print "command_type = $info[0], address type = $info[1]\n";
         my $command_type = $info[0];
         my $address_type = $info[1];
@@ -669,7 +676,7 @@ if ($option_f != 0){
 sub command_breakdown {
 
     # unpack the command passed in
-    my ($command) = @_;
+    my ($command, $command_no, $option_f, $command_file_name) = @_;
     #print "received command was: $command\n";
 
     # detect the delimitor used
@@ -692,20 +699,35 @@ sub command_breakdown {
         #if $ is used for line number then there can only be one $
         if ($start =~ m/\$/){
             if ($start ne '$'){
-                print "speed: command line: invalid command\n";
+                if ($option_f != 0){
+                    print "speed: file $command_file_name line $command_no: invalid command\n";
+                }
+                else{
+                    print "speed: command line: invalid command\n";
+                }
                 exit 1;
             }
         }
         if ($end =~ m/\$/){
             if ($end ne '$'){
-                print "speed: command line: invalid command\n";
+                if ($option_f != 0){
+                    print "speed: file $command_file_name line $command_no: invalid command\n";
+                }
+                else{
+                    print "speed: command line: invalid command\n";
+                }
                 exit 1;
             }
         }
 
         # ranges can't be used on quit
         if ($command_type eq 'q'){
-            print "speed: command line: invalid command\n";
+            if ($option_f != 0){
+                print "speed: file $command_file_name line $command_no: invalid command\n";
+            }
+            else{
+                print "speed: command line: invalid command\n";
+            }
             exit 1;
         }
         # assign -1 to address of '$'
@@ -731,7 +753,12 @@ sub command_breakdown {
                 # check for valid comment
                 if (defined $modifer && $modifer ne '') {
                     if ($modifer !~ m/^g#.*$/ && $modifer !~ m/^#.*$/ && $modifer !~ m/^g$/) {
-                        print "speed: command line: invalid command\n";
+                        if ($option_f != 0){
+                            print "speed: file $command_file_name line $command_no: invalid command\n";
+                        }
+                        else{
+                            print "speed: command line: invalid command\n";
+                        }
                         exit 1;
                     }
                     elsif ($modifer =~ m/^g$/){
@@ -749,7 +776,12 @@ sub command_breakdown {
             }
             # invalid subtitute command 
             else {
-                print "speed: command line: invalid command\n";
+                if ($option_f != 0){
+                    print "speed: file $command_file_name line $command_no: invalid command\n";
+                }
+                else{
+                    print "speed: command line: invalid command\n";
+                }
                 exit 1;
             }
         }
@@ -759,7 +791,12 @@ sub command_breakdown {
             # check for valid comment
             if (defined $comment && $comment ne '') {
                 if ($comment !~ m/^#.*$/) {
-                    print "speed: command line: invalid command\n";
+                    if ($option_f != 0){
+                        print "speed: file $command_file_name line $command_no: invalid command\n";
+                    }
+                    else{
+                        print "speed: command line: invalid command\n";
+                    }
                     exit 1;
                 }
             }
@@ -777,13 +814,23 @@ sub command_breakdown {
         #if $ is used for line number then there can only be one $
         if ($start =~ m/\$/){
             if ($start ne '$'){
-                print "speed: command line: invalid command\n";
+                if ($option_f != 0){
+                    print "speed: file $command_file_name line $command_no: invalid command\n";
+                }
+                else{
+                    print "speed: command line: invalid command\n";
+                }
                 exit 1;
             }
         }
         # ranges can't be used on quit
         if ($command_type eq 'q'){
-            print "speed: command line: invalid command\n";
+            if ($option_f != 0){
+                print "speed: file $command_file_name line $command_no: invalid command\n";
+            }
+            else{
+                print "speed: command line: invalid command\n";
+            }
             exit 1;
         }
         # assign -1 to address of '$'
@@ -802,7 +849,12 @@ sub command_breakdown {
                 # check for valid comment
                 if (defined $modifer && $modifer ne '') {
                     if ($modifer !~ m/^g#.*$/ && $modifer !~ m/^#.*$/ && $modifer !~ m/^g$/) {
-                        print "speed: command line: invalid command\n";
+                        if ($option_f != 0){
+                            print "speed: file $command_file_name line $command_no: invalid command\n";
+                        }
+                        else{
+                            print "speed: command line: invalid command\n";
+                        }
                         exit 1;
                     }
                     elsif ($modifer =~ m/^g$/){
@@ -820,7 +872,12 @@ sub command_breakdown {
             }
             # invalid subtitute command 
             else {
-                print "speed: command line: invalid command\n";
+                if ($option_f != 0){
+                    print "speed: file $command_file_name line $command_no: invalid command\n";
+                }
+                else{
+                    print "speed: command line: invalid command\n";
+                }
                 exit 1;
             }
         }
@@ -831,7 +888,12 @@ sub command_breakdown {
             # check for valid comment
             if (defined $comment && $comment ne '') {
                 if ($comment !~ m/^#.*$/) {
-                    print "speed: command line: invalid command\n";
+                    if ($option_f != 0){
+                        print "speed: file $command_file_name line $command_no: invalid command\n";
+                    }
+                    else{
+                        print "speed: command line: invalid command\n";
+                    }
                     exit 1;
                 }
             }
@@ -849,13 +911,23 @@ sub command_breakdown {
         #if $ is used for line number then there can only be one $
         if ($end =~ m/\$/){
             if ($end ne '$'){
-                print "speed: command line: invalid command\n";
+                if ($option_f != 0){
+                    print "speed: file $command_file_name line $command_no: invalid command\n";
+                }
+                else{
+                    print "speed: command line: invalid command\n";
+                }
                 exit 1;
             }
         }
         # ranges can't be used on quit
         if ($command_type eq 'q'){
-            print "speed: command line: invalid command\n";
+            if ($option_f != 0){
+                print "speed: file $command_file_name line $command_no: invalid command\n";
+            }
+            else{
+                print "speed: command line: invalid command\n";
+            }
             exit 1;
         }
         # assign -1 to address of '$'
@@ -873,7 +945,12 @@ sub command_breakdown {
                 # check for valid comment
                 if (defined $modifer && $modifer ne '') {
                     if ($modifer !~ m/^g#.*$/ && $modifer !~ m/^#.*$/ && $modifer !~ m/^g$/) {
-                        print "speed: command line: invalid command\n";
+                        if ($option_f != 0){
+                            print "speed: file $command_file_name line $command_no: invalid command\n";
+                        }
+                        else{
+                            print "speed: command line: invalid command\n";
+                        }
                         exit 1;
                     }
                     elsif ($modifer =~ m/^g$/){
@@ -891,7 +968,12 @@ sub command_breakdown {
             }
             # invalid subtitute command 
             else {
-                print "speed: command line: invalid command\n";
+                if ($option_f != 0){
+                    print "speed: file $command_file_name line $command_no: invalid command\n";
+                }
+                else{
+                    print "speed: command line: invalid command\n";
+                }
                 exit 1;
             }
         }
@@ -901,7 +983,12 @@ sub command_breakdown {
             # check for valid comment
             if (defined $comment && $comment ne '') {
                 if ($comment !~ m/^#.*$/) {
-                    print "speed: command line: invalid command\n";
+                    if ($option_f != 0){
+                        print "speed: file $command_file_name line $command_no: invalid command\n";
+                    }
+                    else{
+                        print "speed: command line: invalid command\n";
+                    }
                     exit 1;
                 }
             }
@@ -918,7 +1005,12 @@ sub command_breakdown {
         $comment = $4;
         # ranges can't be used on quit
         if ($command_type eq 'q'){
-            print "speed: command line: invalid command\n";
+            if ($option_f != 0){
+                print "speed: file $command_file_name line $command_no: invalid command\n";
+            }
+            else{
+                print "speed: command line: invalid command\n";
+            }
             exit 1;
         }
         if ($command_type eq 's'){
@@ -932,7 +1024,12 @@ sub command_breakdown {
                 # check for valid comment
                 if (defined $modifer && $modifer ne '') {
                     if ($modifer !~ m/^g#.*$/ && $modifer !~ m/^#.*$/ && $modifer !~ m/^g$/) {
-                        print "speed: command line: invalid command\n";
+                        if ($option_f != 0){
+                            print "speed: file $command_file_name line $command_no: invalid command\n";
+                        }
+                        else{
+                            print "speed: command line: invalid command\n";
+                        }
                         exit 1;
                     }
                     elsif ($modifer =~ m/^g$/){
@@ -950,7 +1047,12 @@ sub command_breakdown {
             }
             # invalid subtitute command 
             else {
-                print "speed: command line: invalid command\n";
+                if ($option_f != 0){
+                    print "speed: file $command_file_name line $command_no: invalid command\n";
+                }
+                else{
+                    print "speed: command line: invalid command\n";
+                }
                 exit 1;
             }
         }
@@ -960,7 +1062,12 @@ sub command_breakdown {
             # check for valid comment
             if (defined $comment && $comment ne '') {
                 if ($comment !~ m/^#.*$/) {
-                    print "speed: command line: invalid command\n";
+                    if ($option_f != 0){
+                        print "speed: file $command_file_name line $command_no: invalid command\n";
+                    }
+                    else{
+                        print "speed: command line: invalid command\n";
+                    }
                     exit 1;
                 }
             }
@@ -981,7 +1088,12 @@ sub command_breakdown {
         # check for valid comment
         if (defined $modifer && $modifer ne '') {
             if ($modifer !~ m/^g#.*$/ && $modifer !~ m/^#.*$/ && $modifer !~ m/^g$/) {
-                print "speed: command line: invalid command\n";
+                if ($option_f != 0){
+                    print "speed: file $command_file_name line $command_no: invalid command\n";
+                }
+                else{
+                    print "speed: command line: invalid command\n";
+                }
                 exit 1;
             }
             elsif ($modifer =~ m/^g$/){
@@ -1015,12 +1127,22 @@ sub command_breakdown {
             #if $ is used for line number then there can only be one $
             if ($line_no =~ m/\$/){
                 if ($line_no ne '$'){
-                    print "speed: command line: invalid command\n";
+                    if ($option_f != 0){
+                        print "speed: file $command_file_name line $command_no: invalid command\n";
+                    }
+                    else{
+                        print "speed: command line: invalid command\n";
+                    }
                     exit 1;
                 }
             }
             if ($line_no ne '$' && $line_no <= 0){
-                print "speed: command line: invalid command\n";
+                if ($option_f != 0){
+                    print "speed: file $command_file_name line $command_no: invalid command\n";
+                }
+                else{
+                    print "speed: command line: invalid command\n";
+                }
                 exit 1;
             }
             # assign -1 to address of '$'
@@ -1032,7 +1154,12 @@ sub command_breakdown {
         }
         # For invalid command/format
         else {
-            print "speed: command line: invalid command\n";
+            if ($option_f != 0){
+                print "speed: file $command_file_name line $command_no: invalid command\n";
+            }
+            else{
+                print "speed: command line: invalid command\n";
+            }
             exit 1;
         }
     }
@@ -1046,7 +1173,12 @@ sub command_breakdown {
         # check for valid comment
         if (defined $comment && $comment ne '') {
             if ($comment !~ m/^#.*$/) {
-                print "speed: command line: invalid command\n";
+                if ($option_f != 0){
+                    print "speed: file $command_file_name line $command_no: invalid command\n";
+                }
+                else{
+                    print "speed: command line: invalid command\n";
+                }
                 exit 1;
             }
         }
@@ -1063,7 +1195,12 @@ sub command_breakdown {
         # check for valid comment
         if (defined $comment && $comment ne '') {
             if ($comment !~ m/^#.*$/) {
-                print "speed: command line: invalid command\n";
+                if ($option_f != 0){
+                    print "speed: file $command_file_name line $command_no: invalid command\n";
+                }
+                else{
+                    print "speed: command line: invalid command\n";
+                }
                 exit 1;
             }
         }
@@ -1080,7 +1217,12 @@ sub command_breakdown {
         #if $ is used for line number then there can only be one $
         if ($line_no =~ m/\$/){
             if ($line_no ne '$'){
-                print "speed: command line: invalid command\n";
+                if ($option_f != 0){
+                    print "speed: file $command_file_name line $command_no: invalid command\n";
+                }
+                else{
+                    print "speed: command line: invalid command\n";
+                }
                 exit 1;
             }
         }
@@ -1089,7 +1231,12 @@ sub command_breakdown {
         # check for valid comment
         if (defined $comment && $comment ne '') {
             if ($comment !~ m/^#.*$/) {
-                print "speed: command line: invalid command\n";
+                if ($option_f != 0){
+                    print "speed: file $command_file_name line $command_no: invalid command\n";
+                }
+                else{
+                    print "speed: command line: invalid command\n";
+                }
                 exit 1;
             }
         }
@@ -1097,13 +1244,23 @@ sub command_breakdown {
         # check if line_no is a postive number
         if ($line_no =~ m/^[0-9]*$/){
             if ($line_no <= 0){
-                print "speed: command line: invalid command\n";
+                if ($option_f != 0){
+                    print "speed: file $command_file_name line $command_no: invalid command\n";
+                }
+                else{
+                    print "speed: command line: invalid command\n";
+                }
                 exit 1;
             }
         }
         # $line_no can either be a +number or '$' only
         elsif ($line_no ne '$'){
-            print "speed: command line: invalid command\n";
+            if ($option_f != 0){
+                print "speed: file $command_file_name line $command_no: invalid command\n";
+            }
+            else{
+                print "speed: command line: invalid command\n";
+            }
             exit 1;
         }
         # assign -1 to address of '$'
@@ -1116,7 +1273,12 @@ sub command_breakdown {
 
     }
     else {
-        print "speed: command line: invalid command\n";
+        if ($option_f != 0){
+            print "speed: file $command_file_name line $command_no: invalid command\n";
+        }
+        else{
+            print "speed: command line: invalid command\n";
+        }
         exit 1;
     }
 }
