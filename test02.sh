@@ -100,32 +100,32 @@ cd "$test_dir" || exit 1
 
     # normal working cases
     # line to line
-    seq 1 50 | ./speed.pl 1,5d
+    seq 1 50 | ./speed.pl 1,15d
     echo $?
-    seq 1 50 | ./speed.pl 1,5p
+    seq 1 50 | ./speed.pl 1,15p
     echo $?
-    seq 1 50 | ./speed.pl 1,5s/./-
+    seq 1 50 | ./speed.pl 1,15s/./-
     echo $?
     # line to regex
-    seq 1 50 | ./speed.pl 1,/5/d
+    seq 1 50 | ./speed.pl 1,/2/d
     echo $?
-    seq 1 50 | ./speed.pl 1,/5/p
+    seq 1 50 | ./speed.pl 1,/2/p
     echo $?
-    seq 1 50 | ./speed.pl 1,/5/s/./- # end range regex doesn't activate command
+    seq 1 50 | ./speed.pl 1,/2/s/./- # end range regex doesn't activate command
     echo $?
     # regex to line
-    seq 1 50 | ./speed.pl /1/,5d
+    seq 1 50 | ./speed.pl /1/,15d
     echo $?
-    seq 1 50 | ./speed.pl /1/,5p
+    seq 1 50 | ./speed.pl /1/,15p
     echo $?
-    seq 1 50 | ./speed.pl /1/,5s/./- # only activate command after range ends
+    seq 1 50 | ./speed.pl /1/,15s/./- # only activate command after range ends
     echo $?
     # regex to regex
-    seq 1 50 | ./speed.pl /1/,/5/d
+    seq 1 50 | ./speed.pl /1/,/2/d
     echo $?
-    seq 1 50 | ./speed.pl /1/,/5/p
+    seq 1 50 | ./speed.pl /1/,/2/p
     echo $?
-    seq 1 50 | ./speed.pl /1/,/5/s/./- # range can restart
+    seq 1 50 | ./speed.pl /1/,/2/s/./-/ # range can restart
     echo $?
 ) >>"output.txt" 2>>"output.txt"
 
@@ -217,32 +217,32 @@ cd "solution"
 
     # normal working cases
     # line to line
-    seq 1 50 | 2041 speed 1,5d
+    seq 1 50 | 2041 speed 1,15d
     echo $?
-    seq 1 50 | 2041 speed 1,5p
+    seq 1 50 | 2041 speed 1,15p
     echo $?
-    seq 1 50 | 2041 speed 1,5s/./-
+    seq 1 50 | 2041 speed 1,15s/./-
     echo $?
     # line to regex
-    seq 1 50 | 2041 speed 1,/5/d
+    seq 1 50 | 2041 speed 1,/2/d
     echo $?
-    seq 1 50 | 2041 speed 1,/5/p
+    seq 1 50 | 2041 speed 1,/2/p
     echo $?
-    seq 1 50 | 2041 speed 1,/5/s/./- # end range regex doesn't activate command
+    seq 1 50 | 2041 speed 1,/2/s/./- # end range regex doesn't activate command
     echo $?
     # regex to line
-    seq 1 50 | 2041 speed /1/,5d
+    seq 1 50 | 2041 speed /1/,15d
     echo $?
-    seq 1 50 | 2041 speed /1/,5p
+    seq 1 50 | 2041 speed /1/,15p
     echo $?
-    seq 1 50 | 2041 speed /1/,5s/./- # only activate command after range ends
+    seq 1 50 | 2041 speed /1/,15s/./- # only activate command after range ends
     echo $?
     # regex to regex
-    seq 1 50 | 2041 speed /1/,/5/d
+    seq 1 50 | 2041 speed /1/,/2/d
     echo $?
-    seq 1 50 | 2041 speed /1/,/5/p
+    seq 1 50 | 2041 speed /1/,/2/p
     echo $?
-    seq 1 50 | 2041 speed /1/,/5/s/./- # range can restart
+    seq 1 50 | 2041 speed /1/,/2/s/./-/ # range can restart
     echo $?
 ) >>"sol.txt" 2>>"sol.txt"
 cd ..

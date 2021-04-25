@@ -63,7 +63,7 @@ cd "$test_dir" || exit 1
     ./speed.pl -f temp1.txt temp2.txt
     echo $?
 
-    # invalid command within a mulitple command seperated by spaces
+    # invalid command within a mulitple command seperated by ';'
     # echo "2p; 1,/5s/./-/g # print from line 1 til regex match 5" > tempX.txt
     # ./speed.pl -f tempX.txt temp2.txt
     # echo $?
@@ -121,7 +121,7 @@ cd "solution"
     2041 speed -f temp1.txt temp2.txt
     echo $?
 
-    # invalid command within a mulitple command seperated by spaces
+    # invalid command within a mulitple command seperated by ';'
     # echo "2p; 1,/5s/./-/g # print from line 1 til regex match 5" > tempX.txt
     # 2041 speed -f tempX.txt temp2.txt
     # echo $?

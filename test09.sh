@@ -15,13 +15,67 @@ cd "$test_dir" || exit 1
 
 # Begin tests:
 (
+    # create a valid command input file with comments
+    # header comments
+    echo "#Yo this is a test command input file" > temp1.txt
+    echo "# Written By Marko Wong" >> temp1.txt
+    echo "# on the 25/04/2021" >> temp1.txt 
+    echo "" >>temp1.txt
+    # every commands in subset 0 and 1 with comments
+    echo "/1/,\$p; 5,/20/sX.XX; #print line 2" >> temp1.txt
+    echo "/1/,/2/d; 29q;" >> temp1.txt 
+    # just a comment
+    echo "# done" >>temp1.txt
+    echo "" >>temp1.txt
 
+    #create a input file with comments 
+    # header comments
+    echo "#Yo this is a test input file" > temp2.txt
+    echo "# Written By Marko Wong" >> temp2.txt
+    echo "# on the 25/04/2021" >> temp2.txt 
+    echo "" >>temp2.txt
+    #commands with comments
+    seq 1 30 >> temp2.txt
+    echo "hello # hi" >> temp2.txt 
+    # just a comment
+    echo "# done" >>temp2.txt
+    echo "" >>temp2.txt
+
+    ./speed.pl -n -f temp1.txt temp2.txt
+    echo $?
 ) >>"output.txt" 2>>"output.txt"
 
 mkdir "solution"
 cd "solution"
 (
+    # create a valid command input file with comments
+    # header comments
+    echo "#Yo this is a test command input file" > temp1.txt
+    echo "# Written By Marko Wong" >> temp1.txt
+    echo "# on the 25/04/2021" >> temp1.txt 
+    echo "" >>temp1.txt
+    # every commands in subset 0 and 1 with comments
+    echo "/1/,\$p; 5,/20/sX.XX; #print line 2" >> temp1.txt
+    echo "/1/,/2/d; 29q;" >> temp1.txt 
+    # just a comment
+    echo "# done" >>temp1.txt
+    echo "" >>temp1.txt
 
+    #create a input file with comments 
+    # header comments
+    echo "#Yo this is a test input file" > temp2.txt
+    echo "# Written By Marko Wong" >> temp2.txt
+    echo "# on the 25/04/2021" >> temp2.txt 
+    echo "" >>temp2.txt
+    #commands with comments
+    seq 1 30 >> temp2.txt
+    echo "hello # hi" >> temp2.txt 
+    # just a comment
+    echo "# done" >>temp2.txt
+    echo "" >>temp2.txt
+
+    2041 speed -n -f temp1.txt temp2.txt
+    echo $?
 ) >>"sol.txt" 2>>"sol.txt"
 cd ..
 NC='\033[0m' # No Color

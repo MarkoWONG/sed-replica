@@ -15,33 +15,114 @@ cd "$test_dir" || exit 1
 
 # Begin tests:
 (
-    
+    # Overlaping ranges 
+    seq 1 30 | ./speed.pl '1,15p; 5,20s/.//;'
+    echo $?
+    seq 1 30 | ./speed.pl '1,/15/p; 5,/20/s/.//;'
+    echo $?
+    seq 1 30 | ./speed.pl '/1/,15p; /5/,20s/.//;'
+    echo $?
+    seq 1 30 | ./speed.pl '/1/,/15/p; /5/,/20/s/.//;'
+    echo $?
+
+    # ranges of the same type (eg.regex to regex) and same command type
+    # seq 1 30 | ./speed.pl '/1/,3p; /5/,5p;'
+    # echo $?
+
+    # Test order matters
+    # once deleted don't activate other commands for that affected line
+    seq 1 30 | ./speed.pl '/1/,/2/d; /1/,/2/p;'
+    echo $?
+    seq 1 30 | ./speed.pl '/2/,5d; /.2/,5s/../-/g'
+    echo $?
+    seq 1 30 | ./speed.pl '/2/,/3/p; /1/d; /1/p;'
+    echo $?
+    seq 1 30 | ./speed.pl '/1/,3p; /2/,/8/d; /.2/,/.5/s/../-/g'
+    echo $?
+    #still apply the commands on the affected line if it comes before the delete
+    seq 1 30 | ./speed.pl '/1/,5p; /2/,/.5/d; /.2/,/.3/s/../-/g'
+    echo $?
+    # once quitted don't activate other commands
+    seq 1 30 | ./speed.pl '/1/q; /1/,/2/p;'
+    echo $?
+    seq 1 30 | ./speed.pl '/2/q; /.2/,/.3/s/../-/g'
+    echo $?
+    seq 1 30 | ./speed.pl '/2/,/5/p; /1/q; /1/p;'
+    echo $?
+    seq 1 30 | ./speed.pl '/1/,/3/p; /2/q; /.2/s/../-/g'
+    echo $?
+    #still apply the commands on the affected line if it comes before the delete
+    seq 1 30 | ./speed.pl '/1/,/2/p; /4/q; /.2/s/../-/g'
+    echo $?
+
+    # delete and quit has the same order of priority 
+    seq 1 15 | ./speed.pl '/1/,/2/p; 3,5d; 2q;' #deleting the quit line will result in not quitting
+    echo $?
+    seq 1 15 | ./speed.pl '/1/,/3/p; 4q; 4d;' #qutting on the delete line will result in not deleteing
+    echo $?
+
+    # print and substitute don't restrict other commands (but still order matters)
+    seq 1 15 | ./speed.pl '/1/,/2/p; /1/,/2/s/.*/hi/;'
+    echo $?
+    seq 1 15 | ./speed.pl '/1/,12s/.*/hi/;/1/,/.2/p;'
+    echo $?
 ) >>"output.txt" 2>>"output.txt"
 
 mkdir "solution"
 cd "solution"
 (
-    
-    # don't do anything on quit line if quit has piority
-    seq 1 20 | 2041 speed '3q;1,$p'
-    seq 1 20 | 2041 speed '3q;1,$s/./-/'
-    seq 1 20 | 2041 speed '3q;2,3d'
+    # Overlaping ranges 
+    seq 1 30 | 2041 speed '1,15p; 5,20s/.//;'
+    echo $?
+    seq 1 30 | 2041 speed '1,/15/p; 5,/20/s/.//;'
+    echo $?
+    seq 1 30 | 2041 speed '/1/,15p; /5/,20s/.//;'
+    echo $?
+    seq 1 30 | 2041 speed '/1/,/15/p; /5/,/20/s/.//;'
+    echo $?
 
-    # if quit don't have piority then don't do anything?
-    seq 1 20 | 2041 speed '1,$p;3q'
-    seq 1 20 | 2041 speed '1,$s/./-/;3q'
-    seq 1 20 | 2041 speed '2,3d;3q'
-    seq 1 20 | 2041 speed  -n '10p;$p'
+    # ranges of the same type (eg.regex to regex) and same command type
+    # seq 1 30 | 2041 speed '/1/,3p; /5/,5p;'
+    # echo $?
 
-    # just comment
-    seq 1 20 | 2041 speed ' # asofms  '
+    # Test order matters
+    # once deleted don't activate other commands for that affected line
+    seq 1 30 | 2041 speed '/1/,/2/d; /1/,/2/p;'
+    echo $?
+    seq 1 30 | 2041 speed '/2/,5d; /.2/,5s/../-/g'
+    echo $?
+    seq 1 30 | 2041 speed '/2/,/3/p; /1/d; /1/p;'
+    echo $?
+    seq 1 30 | 2041 speed '/1/,3p; /2/,/8/d; /.2/,/.5/s/../-/g'
+    echo $?
+    #still apply the commands on the affected line if it comes before the delete
+    seq 1 30 | 2041 speed '/1/,5p; /2/,/.5/d; /.2/,/.3/s/../-/g'
+    echo $?
+    # once quitted don't activate other commands
+    seq 1 30 | 2041 speed '/1/q; /1/,/2/p;'
+    echo $?
+    seq 1 30 | 2041 speed '/2/q; /.2/,/.3/s/../-/g'
+    echo $?
+    seq 1 30 | 2041 speed '/2/,/5/p; /1/q; /1/p;'
+    echo $?
+    seq 1 30 | 2041 speed '/1/,/3/p; /2/q; /.2/s/../-/g'
+    echo $?
+    #still apply the commands on the affected line if it comes before the delete
+    seq 1 30 | 2041 speed '/1/,/2/p; /4/q; /.2/s/../-/g'
+    echo $?
 
-    #autotest fails
-    seq 1 100 | 2041 speed -n '1,/.1/p;/5/,/9/s/.//;/.{2}/,/.9/p;85q' #63
-    seq 1 100 | ./speed.pl -n '1,/.1/p;/5/,/9/s/.//;/.{2}/,/.9/p;85q;'
-    #seq 1 100 | ./speed.pl -n '1,/.1/p;/.{2}/,/.9/p;' #85q;' # each range variable varient need it's own variable
-    #seq 1 100 | ./speed.pl '1,/.1/p;/5/,/9/s/.//;' #keep orinal lines when comparing and need own range variables
-    #seq 1 100 | ./speed.pl '/5/,/9/s/.//;' #only modify things once
+    # delete and quit has the same order of priority 
+    seq 1 15 | 2041 speed '/1/,/2/p; 3,5d; 2q;' #deleting the quit line will result in not quitting
+    echo $?
+    seq 1 15 | 2041 speed '/1/,/3/p; 4q; 4d;' #qutting on the delete line will result in not deleteing
+    echo $?
+
+    # print and substitute don't restrict other commands (but still order matters)
+    seq 1 15 | 2041 speed '/1/,/2/p; /1/,/2/s/.*/hi/;'
+    echo $?
+    seq 1 15 | 2041 speed '/1/,12s/.*/hi/;/1/,/.2/p;'
+    echo $?
+
 ) >>"sol.txt" 2>>"sol.txt"
 cd ..
 NC='\033[0m' # No Color
