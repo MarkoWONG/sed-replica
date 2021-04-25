@@ -289,7 +289,6 @@ while (<$inputs>) {
                 }
                 # when within range activate command (only activate once if end is already reached)
                 if ($p_within_range_re_no == 1){
-                    #print "in\n";
                     $print =1;
                 }
                 # activate range
@@ -301,7 +300,6 @@ while (<$inputs>) {
                 }
                 # deactivate range
                 if ($end == $line_no){
-                    #print "end\n";
                     $print = 1;
                     $end_found_p = 1;
                     $p_within_range_re_no = 0;
@@ -652,7 +650,7 @@ while (<$inputs>) {
                     $s_within_range_re_re = 1;
                 }
                 # deactivate range
-                elsif ($og_line =~ m/$end/){
+                if ($og_line =~ m/$end/){
                     $s_within_range_re_re = 0;
                 }
             }
@@ -1290,8 +1288,6 @@ sub get_delimitor {
 
     # unpack the command passed in
     ($command) = @_;
-    #print "get_delimitor received command was: $command\n";
-
     # grab the all the charaters after a 's'.
     $delimitor = 'none';
     for ($command =~ m/s(.)/){
@@ -1307,6 +1303,7 @@ sub get_delimitor {
 
 # Remove all whitespaces from string
 sub whitespace_remover {
+    # This is all the whitespace according to the perl docs
     ($str1) = @_;
     $str1 =~ tr/ //d;
     $str1 =~ tr/\n//d;
@@ -1321,7 +1318,6 @@ sub create_input_file {
     ($fh, $input_temp_file) = tempfile( );
     open($file, ">", $input_temp_file) or print "speed: error\n" and exit 1;
     for (@_) {
-        #select $file;
         open $fh, '<', $_ or print "speed: error\n" and exit 1;
         while (<$fh>){
             chomp $_;

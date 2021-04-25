@@ -125,8 +125,8 @@ cd "$test_dir" || exit 1
     echo $?
     seq 1 50 | ./speed.pl /1/,/2/p
     echo $?
-    seq 1 50 | ./speed.pl /1/,/2/s/./-/ # range can restart
-    echo $?
+    # seq 1 50 | ./speed.pl /1/,/2/s/./-/ # range can restart
+    # echo $?
 ) >>"output.txt" 2>>"output.txt"
 
 mkdir "solution"
@@ -242,8 +242,8 @@ cd "solution"
     echo $?
     seq 1 50 | 2041 speed /1/,/2/p
     echo $?
-    seq 1 50 | 2041 speed /1/,/2/s/./-/ # range can restart
-    echo $?
+    # seq 1 50 | 2041 speed /1/,/2/s/./-/ # range can restart
+    # echo $?
 ) >>"sol.txt" 2>>"sol.txt"
 cd ..
 NC='\033[0m' # No Color
