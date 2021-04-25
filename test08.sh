@@ -15,13 +15,77 @@ cd "$test_dir" || exit 1
 
 # Begin tests:
 (
+    # create a command input file with comments
+    # header comments
+    echo "#Yo this is a test command input file" > temp1.txt
+    echo "# Written By Marko Wong" >> temp1.txt
+    echo "# on the 25/04/2021" >> temp1.txt 
+    echo "" >>temp1.txt
+    #commands with comments
+    echo "2p #print line 2" >> temp1.txt
+    #echo "1,/5s/./-/g # print from line 1 til regex match 5" >> temp1.txt  #produce error with extra info
+    echo "1,/5/s/./-/g # print from line 1 til regex match 5" >> temp1.txt 
+    # just a comment
+    echo "# now halfway through commands" >>temp1.txt
+    echo "9p; 10q # print line 9 and quit on line 10" >>temp1.txt
+    echo "" >>temp1.txt
+
+    #create a input file with comments 
+    # header comments
+    echo "#Yo this is a test input file" > temp2.txt
+    echo "# Written By Marko Wong" >> temp2.txt
+    echo "# on the 25/04/2021" >> temp2.txt 
+    echo "" >>temp2.txt
+    #commands with comments
+    echo "12 #12" >> temp2.txt
+    echo "hello # hi" >> temp2.txt 
+    # just a comment
+    echo "# now halfway through commands" >>temp2.txt
+    echo "9 # 9 " >>temp2.txt
+    echo "19 # 19 " >>temp2.txt
+    echo "" >>temp2.txt
+
+    ./speed.pl -f temp1.txt temp2.txt
+    echo $?
+
+
 
 ) >>"output.txt" 2>>"output.txt"
 
 mkdir "solution"
 cd "solution"
 (
+    # create a command input file with comments
+    # header comments
+    echo "#Yo this is a test command input file" > temp1.txt
+    echo "# Written By Marko Wong" >> temp1.txt
+    echo "# on the 25/04/2021" >> temp1.txt 
+    echo "" >>temp1.txt
+    #commands with comments
+    echo "2p #print line 2" >> temp1.txt
+    echo "1,/5/s/./-/g # print from line 1 til regex match 5" >> temp1.txt 
+    # just a comment
+    echo "# now halfway through commands" >>temp1.txt
+    echo "9p; 10q # print line 9 and quit on line 10" >>temp1.txt
+    echo "" >>temp1.txt
 
+    #create a input file with comments 
+    # header comments
+    echo "#Yo this is a test input file" > temp2.txt
+    echo "# Written By Marko Wong" >> temp2.txt
+    echo "# on the 25/04/2021" >> temp2.txt 
+    echo "" >>temp2.txt
+    #commands with comments
+    echo "12 #12" >> temp2.txt
+    echo "hello # hi" >> temp2.txt 
+    # just a comment
+    echo "# now halfway through commands" >>temp2.txt
+    echo "9 # 9 " >>temp2.txt
+    echo "19 # 19 " >>temp2.txt
+    echo "" >>temp2.txt
+
+    2041 speed -f temp1.txt temp2.txt
+    echo $?
 ) >>"sol.txt" 2>>"sol.txt"
 cd ..
 NC='\033[0m' # No Color

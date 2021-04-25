@@ -163,8 +163,10 @@ while (<$inputs>) {
     #0 = false, non-zero = true
     my $quit = 0;
     my $delete = 0;
+    # my command_no = 0;
     # For each command
     foreach my $s_command (@commands) {
+        # command_no++; # IMPLEMENT REFER TO TEST08 ETGSDF SDG SDG SDG SDG SD GSDGG SDGSD 
         #print "$s_command\n";
         my $print = 0;
         my @info = command_breakdown($s_command);
