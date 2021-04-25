@@ -192,7 +192,7 @@ while (<$inputs>) {
             }
             elsif ($address_type eq "regex") {  
                 my $a_regex = $info[2];
-                if ($line =~ m/$a_regex/g){
+                if ($line =~ m/$a_regex/){
                     $quit = 1;
                 }
             }
@@ -218,7 +218,7 @@ while (<$inputs>) {
             }
             elsif ($address_type eq "regex"){
                 my $a_regex = $info[2];
-                if ($line =~ m/$a_regex/g) {
+                if ($line =~ m/$a_regex/) {
                     $print = 1;
                 }
             }
@@ -264,7 +264,7 @@ while (<$inputs>) {
                     $p_within_range_no_re = 1;
                 }
                 # deactivate range
-                elsif ($line =~ m/$end/g){
+                elsif ($line =~ m/$end/){
                     if ($p_within_range_no_re == 1){
                         $print =1;
                     }
@@ -283,7 +283,7 @@ while (<$inputs>) {
                     $print =1;
                 }
                 # activate range
-                if ($line =~ m/$start/g){
+                if ($line =~ m/$start/){
                     $print = 1;
                     if ($end_found_p != 1){
                         $p_within_range_re_no = 1;
@@ -304,13 +304,13 @@ while (<$inputs>) {
                     $print =1;
                 }
                 # activate range
-                if ($line =~ m/$start/g){
+                if ($line =~ m/$start/){
                     #print "started for $line\n";
                     $print =1;
                     $p_within_range_re_re = 1;
                 }
                 # deactivate range
-                if ($line =~ m/$end/g){
+                if ($line =~ m/$end/){
                     #print "ended for $line\n";
                     if ($p_within_range_re_re != 0){
                         $print =1;
@@ -343,7 +343,7 @@ while (<$inputs>) {
             }
             elsif ($address_type eq "regex") {
                 my $a_regex = $info[2];
-                if ($line =~ m/$a_regex/g){
+                if ($line =~ m/$a_regex/){
                     $delete = 1;
                 }
             }
@@ -389,7 +389,7 @@ while (<$inputs>) {
                     $d_within_range_no_re = 1;
                 }
                 # deactivate range
-                elsif ($line =~ m/$end/g){
+                elsif ($line =~ m/$end/){
                     if ($d_within_range_no_re == 1){
                         $delete = 1;
                     }
@@ -408,7 +408,7 @@ while (<$inputs>) {
                     $delete = 1;
                 }
                 # activate range
-                if ($line =~ m/$start/g){
+                if ($line =~ m/$start/){
                     $delete = 1;
                     if ($end_found_d != 1){
                         $d_within_range_re_no = 1;
@@ -429,13 +429,13 @@ while (<$inputs>) {
                     $delete = 1;
                 }
                 # activate range
-                if ($line =~ m/$start/g){
+                if ($line =~ m/$start/){
                     #print "started for $line\n";
                     $delete = 1;
                     $d_within_range_re_re = 1;
                 }
                 # deactivate range
-                if ($line =~ m/$end/g){
+                if ($line =~ m/$end/){
                     #print "ended for $line\n";
                     if ($d_within_range_re_re != 0){
                         $delete = 1;
@@ -478,7 +478,7 @@ while (<$inputs>) {
             }
             elsif ($address_type eq "regex") {
                 my $a_regex = $info[2];
-                if ($line =~ m/$a_regex/g){
+                if ($line =~ m/$a_regex/){
                     if (defined $modifer && $modifer eq 'g'){
                         $line =~ s/$sub_regex/$substitute/g;
                     }
@@ -562,7 +562,7 @@ while (<$inputs>) {
                     $s_within_range_no_re = 1;
                 }
                 # deactivate range
-                elsif ($og_line =~ m/$end/g){
+                elsif ($og_line =~ m/$end/){
                     $s_within_range_no_re = 0;
                 }
             }
@@ -591,7 +591,7 @@ while (<$inputs>) {
                     }
                 }
                 # activate range
-                if ($og_line =~ m/$start/g){
+                if ($og_line =~ m/$start/){
                     if ($modifer eq 'g' && $modifed == 0){
                         $line =~ s/$sub_regex/$substitute/g;
                     }
@@ -630,7 +630,7 @@ while (<$inputs>) {
                     }
                 }
                 # activate range
-                if ($og_line =~ m/$start/g){
+                if ($og_line =~ m/$start/){
                     #print "started for $line\n";
                     if ($modifer eq 'g'&& $modifed == 0){
                         $line =~ s/$sub_regex/$substitute/g;
@@ -641,7 +641,7 @@ while (<$inputs>) {
                     $s_within_range_re_re = 1;
                 }
                 # deactivate range
-                if ($og_line =~ m/$end/g){
+                if ($og_line =~ m/$end/){
                     $s_within_range_re_re = 0;
                 }
             }
@@ -676,25 +676,25 @@ sub command_breakdown {
 
     # Breakdown of speed command into command type and address type
     # For whitespace command
-    if ($command =~ m/^\s*$/g || $command eq '' || $command =~ m/^\s*#.*$/g){
+    if ($command =~ m/^\s*$/ || $command eq '' || $command =~ m/^\s*#.*$/){
         @result = ("none", "none");
         return @result;
     }
     # For line_no to line_no range
-    elsif ($command =~ m/^\s*([0-9\$]+)\s*,\s*([0-9\$]+)\s*([qpds])\s*(.*)$/g) {
+    elsif ($command =~ m/^\s*([0-9\$]+)\s*,\s*([0-9\$]+)\s*([qpds])\s*(.*)$/) {
         #print "line_no to line_no range\n";
         $start = $1;
         $end = $2;
         $command_type = $3;
         $comment = $4;
         #if $ is used for line number then there can only be one $
-        if ($start =~ m/\$/g){
+        if ($start =~ m/\$/){
             if ($start ne '$'){
                 print "speed: command line: invalid command\n";
                 exit 1;
             }
         }
-        if ($end =~ m/\$/g){
+        if ($end =~ m/\$/){
             if ($end ne '$'){
                 print "speed: command line: invalid command\n";
                 exit 1;
@@ -719,7 +719,7 @@ sub command_breakdown {
         #print "$command_type\n";
 
         if ($command_type eq 's'){
-            if ($comment =~ m/\Q$delimitor\E(.+?)\Q$delimitor\E(.*?)\Q$delimitor\E(.*)?/g){
+            if ($comment =~ m/\Q$delimitor\E(.+?)\Q$delimitor\E(.*?)\Q$delimitor\E(.*)?/){
                 my $sub_regex = $1;
                 my $substitute = $2;
                 my $modifer = $3;
@@ -728,17 +728,17 @@ sub command_breakdown {
                 $modifer = whitespace_remover($modifer);
                 # check for valid comment
                 if (defined $modifer && $modifer ne '') {
-                    if ($modifer !~ m/^g#.*$/g && $modifer !~ m/^#.*$/g && $modifer !~ m/^g$/g) {
+                    if ($modifer !~ m/^g#.*$/ && $modifer !~ m/^#.*$/ && $modifer !~ m/^g$/) {
                         print "speed: command line: invalid command\n";
                         exit 1;
                     }
-                    elsif ($modifer =~ m/^g$/g){
+                    elsif ($modifer =~ m/^g$/){
                         $modifer = 'g';
                     }
-                    elsif ($modifer =~ m/^g#.*$/g){
+                    elsif ($modifer =~ m/^g#.*$/){
                         $modifer = 'g';
                     }
-                    elsif ($modifer =~ m/^#.*$/g){
+                    elsif ($modifer =~ m/^#.*$/){
                         $modifer = '';
                     }
                 }
@@ -756,7 +756,7 @@ sub command_breakdown {
             $comment = whitespace_remover($comment);
             # check for valid comment
             if (defined $comment && $comment ne '') {
-                if ($comment !~ m/^#.*$/g) {
+                if ($comment !~ m/^#.*$/) {
                     print "speed: command line: invalid command\n";
                     exit 1;
                 }
@@ -766,14 +766,14 @@ sub command_breakdown {
         }
     }
     # For line_no to regex range
-    elsif ($command =~ m/^\s*([0-9\$]+)\s*,\s*\/(.+?)\/\s*([qpds])\s*(.*)$/g) {
+    elsif ($command =~ m/^\s*([0-9\$]+)\s*,\s*\/(.+?)\/\s*([qpds])\s*(.*)$/) {
         #print "line_no to regex range\n";
         $start = $1;
         $end = $2;
         $command_type = $3;
         $comment = $4;
         #if $ is used for line number then there can only be one $
-        if ($start =~ m/\$/g){
+        if ($start =~ m/\$/){
             if ($start ne '$'){
                 print "speed: command line: invalid command\n";
                 exit 1;
@@ -790,7 +790,7 @@ sub command_breakdown {
         }
         if ($command_type eq 's'){
             #print "= $comment\n";
-            if ($comment =~ m/\Q$delimitor\E(.+?)\Q$delimitor\E(.*?)\Q$delimitor\E(.*)?/g){
+            if ($comment =~ m/\Q$delimitor\E(.+?)\Q$delimitor\E(.*?)\Q$delimitor\E(.*)?/){
                 my $sub_regex = $1;
                 my $substitute = $2;
                 my $modifer = $3;
@@ -799,17 +799,17 @@ sub command_breakdown {
                 $modifer = whitespace_remover($modifer);
                 # check for valid comment
                 if (defined $modifer && $modifer ne '') {
-                    if ($modifer !~ m/^g#.*$/g && $modifer !~ m/^#.*$/g && $modifer !~ m/^g$/g) {
+                    if ($modifer !~ m/^g#.*$/ && $modifer !~ m/^#.*$/ && $modifer !~ m/^g$/) {
                         print "speed: command line: invalid command\n";
                         exit 1;
                     }
-                    elsif ($modifer =~ m/^g$/g){
+                    elsif ($modifer =~ m/^g$/){
                         $modifer = 'g';
                     }
-                    elsif ($modifer =~ m/^g#.*$/g){
+                    elsif ($modifer =~ m/^g#.*$/){
                         $modifer = 'g';
                     }
-                    elsif ($modifer =~ m/^#.*$/g){
+                    elsif ($modifer =~ m/^#.*$/){
                         $modifer = '';
                     }
                 }
@@ -828,7 +828,7 @@ sub command_breakdown {
             $comment = whitespace_remover($comment);
             # check for valid comment
             if (defined $comment && $comment ne '') {
-                if ($comment !~ m/^#.*$/g) {
+                if ($comment !~ m/^#.*$/) {
                     print "speed: command line: invalid command\n";
                     exit 1;
                 }
@@ -838,14 +838,14 @@ sub command_breakdown {
         }
     }
     # For regex to line_no range
-    elsif ($command =~ m/^\s*\/(.+?)\/\s*,\s*([0-9\$]+)\s*([qpds])\s*(.*)$/g) {
+    elsif ($command =~ m/^\s*\/(.+?)\/\s*,\s*([0-9\$]+)\s*([qpds])\s*(.*)$/) {
         #print "regex to line_no range\n";
         $start = $1;
         $end = $2;
         $command_type = $3;
         $comment = $4;
         #if $ is used for line number then there can only be one $
-        if ($end =~ m/\$/g){
+        if ($end =~ m/\$/){
             if ($end ne '$'){
                 print "speed: command line: invalid command\n";
                 exit 1;
@@ -861,7 +861,7 @@ sub command_breakdown {
             $end = -1;
         }
         if ($command_type eq 's'){
-            if ($comment =~ m/\Q$delimitor\E(.+?)\Q$delimitor\E(.*?)\Q$delimitor\E(.*)?/g){
+            if ($comment =~ m/\Q$delimitor\E(.+?)\Q$delimitor\E(.*?)\Q$delimitor\E(.*)?/){
                 my $sub_regex = $1;
                 my $substitute = $2;
                 my $modifer = $3;
@@ -870,17 +870,17 @@ sub command_breakdown {
                 $modifer = whitespace_remover($modifer);
                 # check for valid comment
                 if (defined $modifer && $modifer ne '') {
-                    if ($modifer !~ m/^g#.*$/g && $modifer !~ m/^#.*$/g && $modifer !~ m/^g$/g) {
+                    if ($modifer !~ m/^g#.*$/ && $modifer !~ m/^#.*$/ && $modifer !~ m/^g$/) {
                         print "speed: command line: invalid command\n";
                         exit 1;
                     }
-                    elsif ($modifer =~ m/^g$/g){
+                    elsif ($modifer =~ m/^g$/){
                         $modifer = 'g';
                     }
-                    elsif ($modifer =~ m/^g#.*$/g){
+                    elsif ($modifer =~ m/^g#.*$/){
                         $modifer = 'g';
                     }
-                    elsif ($modifer =~ m/^#.*$/g){
+                    elsif ($modifer =~ m/^#.*$/){
                         $modifer = '';
                     }
                 }
@@ -898,7 +898,7 @@ sub command_breakdown {
             $comment = whitespace_remover($comment);
             # check for valid comment
             if (defined $comment && $comment ne '') {
-                if ($comment !~ m/^#.*$/g) {
+                if ($comment !~ m/^#.*$/) {
                     print "speed: command line: invalid command\n";
                     exit 1;
                 }
@@ -908,7 +908,7 @@ sub command_breakdown {
         }
     }
     # For regex to regex range
-    elsif ($command =~ m/^\s*\/(.+?)\/\s*,\s*\/(.+?)\/\s*([qpds])\s*(.*)$/g) {
+    elsif ($command =~ m/^\s*\/(.+?)\/\s*,\s*\/(.+?)\/\s*([qpds])\s*(.*)$/) {
         #print "regex to regex range\n";
         $start = $1;
         $end = $2;
@@ -920,7 +920,7 @@ sub command_breakdown {
             exit 1;
         }
         if ($command_type eq 's'){
-            if ($comment =~ m/\Q$delimitor\E(.+?)\Q$delimitor\E(.*?)\Q$delimitor\E(.*)?/g){
+            if ($comment =~ m/\Q$delimitor\E(.+?)\Q$delimitor\E(.*?)\Q$delimitor\E(.*)?/){
                 my $sub_regex = $1;
                 my $substitute = $2;
                 my $modifer = $3;
@@ -929,17 +929,17 @@ sub command_breakdown {
                 $modifer = whitespace_remover($modifer);
                 # check for valid comment
                 if (defined $modifer && $modifer ne '') {
-                    if ($modifer !~ m/^g#.*$/g && $modifer !~ m/^#.*$/g && $modifer !~ m/^g$/g) {
+                    if ($modifer !~ m/^g#.*$/ && $modifer !~ m/^#.*$/ && $modifer !~ m/^g$/) {
                         print "speed: command line: invalid command\n";
                         exit 1;
                     }
-                    elsif ($modifer =~ m/^g$/g){
+                    elsif ($modifer =~ m/^g$/){
                         $modifer = 'g';
                     }
-                    elsif ($modifer =~ m/^g#.*$/g){
+                    elsif ($modifer =~ m/^g#.*$/){
                         $modifer = 'g';
                     }
-                    elsif ($modifer =~ m/^#.*$/g){
+                    elsif ($modifer =~ m/^#.*$/){
                         $modifer = '';
                     }
                 }
@@ -957,7 +957,7 @@ sub command_breakdown {
             $comment = whitespace_remover($comment);
             # check for valid comment
             if (defined $comment && $comment ne '') {
-                if ($comment !~ m/^#.*$/g) {
+                if ($comment !~ m/^#.*$/) {
                     print "speed: command line: invalid command\n";
                     exit 1;
                 }
@@ -967,7 +967,7 @@ sub command_breakdown {
         }
     }
     # For substitute command type
-    elsif ($command =~ m/(.*?)s\Q$delimitor\E(.+?)\Q$delimitor\E(.*?)\Q$delimitor\E(.*)?/g){
+    elsif ($command =~ m/(.*?)s\Q$delimitor\E(.+?)\Q$delimitor\E(.*?)\Q$delimitor\E(.*)?/){
         my $address = $1;
         my $command_type = 's';
         my $sub_regex = $2;
@@ -978,17 +978,17 @@ sub command_breakdown {
         $modifer = whitespace_remover($modifer);
         # check for valid comment
         if (defined $modifer && $modifer ne '') {
-            if ($modifer !~ m/^g#.*$/g && $modifer !~ m/^#.*$/g && $modifer !~ m/^g$/g) {
+            if ($modifer !~ m/^g#.*$/ && $modifer !~ m/^#.*$/ && $modifer !~ m/^g$/) {
                 print "speed: command line: invalid command\n";
                 exit 1;
             }
-            elsif ($modifer =~ m/^g$/g){
+            elsif ($modifer =~ m/^g$/){
                 $modifer = 'g';
             }
-            elsif ($modifer =~ m/^g#.*$/g){
+            elsif ($modifer =~ m/^g#.*$/){
                 $modifer = 'g';
             }
-            elsif ($modifer =~ m/^#.*$/g){
+            elsif ($modifer =~ m/^#.*$/){
                 $modifer = '';
             }
         }
@@ -1001,17 +1001,17 @@ sub command_breakdown {
         }
 
         # For regex address
-        elsif ($address =~ m/^\s*\/(.+)\/\s*$/g){
+        elsif ($address =~ m/^\s*\/(.+)\/\s*$/){
             my $regex = $1;
             @result = ($command_type, "regex", $regex, $sub_regex, $substitute, $modifer);
             return @result;
           
         }
         # For line_number address
-        elsif ($address =~ m/^\s*([0-9\$]*)\s*$/g){
+        elsif ($address =~ m/^\s*([0-9\$]*)\s*$/){
             my $line_no = $1;
             #if $ is used for line number then there can only be one $
-            if ($line_no =~ m/\$/g){
+            if ($line_no =~ m/\$/){
                 if ($line_no ne '$'){
                     print "speed: command line: invalid command\n";
                     exit 1;
@@ -1036,14 +1036,14 @@ sub command_breakdown {
     }
 
     # no address was supplied
-    elsif ($command =~ m/^\s*([qdp])(.*)$/g){
+    elsif ($command =~ m/^\s*([qdp])(.*)$/){
         my $command_type = $1;
         my $comment = $2;
         # remove whitespaces from comment
         $comment = whitespace_remover($comment);
         # check for valid comment
         if (defined $comment && $comment ne '') {
-            if ($comment !~ m/^#.*$/g) {
+            if ($comment !~ m/^#.*$/) {
                 print "speed: command line: invalid command\n";
                 exit 1;
             }
@@ -1052,7 +1052,7 @@ sub command_breakdown {
         return @result;
     }
     # For Regex address
-    elsif ($command =~ m/^\s*\/(.+?)\/\s*([qdp])(.*)$/g){
+    elsif ($command =~ m/^\s*\/(.+?)\/\s*([qdp])(.*)$/){
         my $regex = $1;
         my $command_type = $2;
         my $comment = $3;
@@ -1060,7 +1060,7 @@ sub command_breakdown {
         $comment = whitespace_remover($comment);
         # check for valid comment
         if (defined $comment && $comment ne '') {
-            if ($comment !~ m/^#.*$/g) {
+            if ($comment !~ m/^#.*$/) {
                 print "speed: command line: invalid command\n";
                 exit 1;
             }
@@ -1071,12 +1071,12 @@ sub command_breakdown {
     }
 
     # For line Number address
-    elsif ($command =~ m/^\s*([0-9\$]+)\s*([qdp])(.*)$/g) {
+    elsif ($command =~ m/^\s*([0-9\$]+)\s*([qdp])(.*)$/) {
         my $line_no = $1;
         my $command_type = $2;
         my $comment = $3;
         #if $ is used for line number then there can only be one $
-        if ($line_no =~ m/\$/g){
+        if ($line_no =~ m/\$/){
             if ($line_no ne '$'){
                 print "speed: command line: invalid command\n";
                 exit 1;
@@ -1086,14 +1086,14 @@ sub command_breakdown {
         $comment = whitespace_remover($comment);
         # check for valid comment
         if (defined $comment && $comment ne '') {
-            if ($comment !~ m/^#.*$/g) {
+            if ($comment !~ m/^#.*$/) {
                 print "speed: command line: invalid command\n";
                 exit 1;
             }
         }
 
         # check if line_no is a postive number
-        if ($line_no =~ m/^[0-9]*$/g){
+        if ($line_no =~ m/^[0-9]*$/){
             if ($line_no <= 0){
                 print "speed: command line: invalid command\n";
                 exit 1;
@@ -1128,10 +1128,10 @@ sub get_delimitor {
 
     # grab the all the charaters after a 's'.
     $delimitor = 'none';
-    for ($command =~ m/s(.)/g){
+    for ($command =~ m/s(.)/){
         $p_delimitor = $_;
         # if character fits into the substitute format then delimitor is found
-        if ($command =~ m/s\Q$p_delimitor\E(.*)\Q$p_delimitor\E(.*)\Q$p_delimitor\E(.*)/g){
+        if ($command =~ m/s\Q$p_delimitor\E(.*)\Q$p_delimitor\E(.*)\Q$p_delimitor\E(.*)/){
             $delimitor = $p_delimitor;
             last;
         }
